@@ -126,6 +126,18 @@ suivants ne traitent que les nouveaux `media_id`.
   skip via `StateStore`, `naming` (EXIF vs createdAt, collisions), retry/erreurs auth, captcha.
 - Chaque bug → test rouge avant fix.
 
+## Documentation utilisateur (livrable de premier plan)
+
+`README.md` **en français, simple, orienté utilisateur final** (pas développeur) :
+- schéma **mermaid** « comment ça marche » (connexion → tableaux → photos rangées) ;
+- sections **Installation** (Docker / GitHub Actions), **Configuration** (identifiants,
+  destination, fréquence), **Utilisation** (UI web + commandes CLI) ;
+- **captures d'écran** de l'UI web (`docs/screenshots/`), ajoutées quand l'UI existe ;
+- section **Vie privée & sécurité**.
+
+Squelette posé dès maintenant (mermaid + structure) ; les commandes exactes et les
+captures sont complétées au fil des features (pas de doc spéculative qui dériverait).
+
 ## Découpage en deux phases
 
 **Phase 1 (v1)** : `core` (client, cardboard, filesystem, state, naming, sync), CLI,
@@ -139,4 +151,3 @@ curseur `updatedAt`.
 
 Multi-tenant / inscription multi-familles ; édition/upload vers l'ENT ; notifications push ;
 sources non-photo (notes, devoirs, agenda).
-```
