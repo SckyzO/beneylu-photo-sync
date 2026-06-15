@@ -37,15 +37,27 @@ backend storage s'ajoute sans toucher au cœur.
 
 ## Commandes
 
+**Tout en conteneur — pas de venv ni de `pip install` sur l'hôte** (voir la règle ci-dessous).
+
+```bash
+make check     # lint (ruff) + tests (pytest) dans un conteneur jetable — le critère de "fini"
+make test      # tests seuls (conteneur)
+make lint      # ruff seul (conteneur)
+make build     # construit l'image runtime beneylu-photo-sync:dev
+```
+
+Application packagée (dans le conteneur runtime) :
+
 ```bash
 ent-exporter login-test      # valide les identifiants
 ent-exporter list-boards     # liste les tableaux du compte
 ent-exporter sync            # synchronise (incrémental)
-pytest                       # tests (mocks httpx, AUCUN appel live)
 ```
 
 ## Conventions
 
+- **Conteneurs uniquement** : dev, tests, lint, outillage tournent dans Docker. **Jamais de venv / `pip install` sur l'hôte.** Les conteneurs tirent les dernières versions des libs.
+- **Tout code linté + validé avant "fini"** : `make check` vert (ruff + pytest) est le minimum ; la CI containerisée le rejoue. Ne rien déclarer terminé sans.
 - **Sources d'abord (context7)** pour toute lib/CLI/API versionnée (httpx, FastAPI, pydantic…).
 - **TDD** : tout bug → test rouge avant le fix ; toute feature active couverte. **CI verte avant de déclarer terminé.**
 - **Pas d'`except` silencieux** : échec *par item* loggé + retry borné (n'abat pas le run) ;

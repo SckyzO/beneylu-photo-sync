@@ -1,0 +1,7 @@
+# .dockerignore
+.venv
+data
+state.db*
+tests
+.git
+__pycache__

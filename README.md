@@ -20,35 +20,29 @@ L'outil se connecte avec **tes identifiants ENT**, parcourt les tableaux de la c
 et télécharge les photos qu'il ne possède pas encore. Tes identifiants restent **chez
 toi** ; rien n'est envoyé ailleurs que vers l'ENT lui-même.
 
-## Installation
+## Installation (Docker)
 
-> ⏳ _Sera complété à la sortie de la v1._ Deux modes prévus :
-
-- **Docker** (recommandé) — un conteneur avec une petite interface web. Idéal sur un NAS,
-  un Raspberry Pi ou un PC qui reste allumé.
-- **Sans serveur (GitHub Actions)** — gratuit, tourne tout seul à intervalle régulier et
-  envoie les photos sur Google Drive.
+```bash
+git clone <repo> && cd ent_exporter
+cp .env.example .env   # puis renseigne ENT_LOGIN / ENT_PASSWORD
+docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter sync
+```
 
 ## Configuration
 
-> ⏳ _Sera complété à la sortie de la v1._ Tu auras besoin de :
-
-- ton **identifiant** et ton **mot de passe** ENT (les mêmes que sur `ent-ecole.fr`) ;
-- le **dossier de destination** des photos (disque local par défaut, Google Drive en option) ;
-- la **fréquence** de vérification (ex. une fois par jour).
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `ENT_LOGIN` | identifiant ENT | — |
+| `ENT_PASSWORD` | mot de passe ENT | — |
+| `ENT_DATA_DIR` | dossier des photos | `./data` |
 
 ## Utilisation
 
-> ⏳ _Sera complété à la sortie de la v1._ Aperçu prévu :
-
 ```bash
-ent-exporter login-test     # vérifie que la connexion fonctionne
-ent-exporter list-boards    # liste les tableaux de la classe
-ent-exporter sync           # télécharge les nouvelles photos
+ent-exporter login-test   # vérifie la connexion
+ent-exporter list-boards  # liste les tableaux
+ent-exporter sync         # télécharge les nouvelles photos
 ```
-
-En mode Docker, tout se pilote depuis l'**interface web** (configurer, lancer une
-synchro, voir la galerie).
 
 ## Captures d'écran
 
