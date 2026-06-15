@@ -1,0 +1,3 @@
+{"id": 100, "username": "parent.test", "firstName": "Test", "lastName": "Parent",
+ "highRole": "PARENT", "displayName": "M. Test Parent",
+ "children": [{"id": 200, "username": "child.test", "firstName": "Léo", "lastName": "Parent", "displayName": "Léo Parent"}]}

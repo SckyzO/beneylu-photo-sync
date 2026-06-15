@@ -1,0 +1,4 @@
+{"id": 900000001, "label": "IMG_7363.jpg", "type_unique_name": "IMAGE", "optimized": true,
+ "mime_type": "image/jpeg", "downloadable": true, "readable": true,
+ "url": "https://s3.example.test/2026_06_12/300/900000001/img-7363.jpg?X-Amz-Signature=deadbeef",
+ "display_url": "https://s3.example.test/2026_06_12/300/900000001/display.jpg?X-Amz-Signature=cafe"}

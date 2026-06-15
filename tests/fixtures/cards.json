@@ -1,0 +1,7 @@
+[{"type": "image", "id": "card-uuid-1", "creatorId": 300, "content": null, "description": "Sortie",
+  "createdAt": "2026-06-12T18:24:16+02:00", "updatedAt": "2026-06-12T18:24:16+02:00", "position": 1,
+  "cardAttachments": [{"mediaId": 900000001, "resourceId": null, "entityId": "card-uuid-1",
+                       "entityType": "Card", "timestamp": 1781479136, "signature": "sigA"}]},
+ {"type": "text", "id": "card-uuid-2", "creatorId": 300, "content": "Bonjour", "description": null,
+  "createdAt": "2026-06-11T10:00:00+02:00", "updatedAt": "2026-06-11T10:00:00+02:00", "position": 2,
+  "cardAttachments": []}]
