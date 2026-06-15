@@ -39,11 +39,9 @@ def sync():
     logging.basicConfig(level=logging.INFO)
     settings = Settings()
     storage = FilesystemStorage(settings.data_dir)
-    state = StateStore(settings.state_db)
-    with _client(settings) as c:
+    with StateStore(settings.state_db) as state, _client(settings) as c:
         report = Synchronizer(c, [CardboardSource()], storage, state).run()
     typer.echo(f"Sync done: downloaded={report.downloaded} skipped={report.skipped} errors={report.errors}")
-    state.close()
 
 if __name__ == "__main__":
     app()

@@ -7,6 +7,9 @@ class StateStore:
     def __init__(self, db_path: Path | str):
         self._conn = sqlite3.connect(str(db_path))
         self._conn.execute(
+            # card_updated_at: seam reserved for the Phase-2 `updatedAt` cursor
+            # (recorded now, not yet read) to enable incremental re-sync of
+            # edited cards without a full-history rescan.
             """CREATE TABLE IF NOT EXISTS media (
                  media_id INTEGER PRIMARY KEY,
                  board_id TEXT, card_id TEXT, path TEXT,
@@ -33,3 +36,9 @@ class StateStore:
 
     def close(self) -> None:
         self._conn.close()
+
+    def __enter__(self) -> "StateStore":
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()

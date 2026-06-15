@@ -31,6 +31,18 @@ def test_login_sends_login_field_not_username(fixture):
     assert body["remember_me"] is False
 
 @respx.mock
+def test_authenticated_call_sends_bearer_cookie(fixture):
+    respx.post(f"{BASE}/api/auth/login_check").mock(
+        return_value=httpx.Response(200, json=fixture("login_check.json"),
+                                    headers={"set-cookie": "BEARER=jwt-token; path=/; httponly"}))
+    route = respx.get(f"{BASE}/api/cardboard/boards").mock(
+        return_value=httpx.Response(200, json=fixture("boards.json")))
+    c = BeneyluClient(base_url=BASE, login="parent.test", password="secret")
+    c.login()
+    c.boards()
+    assert "BEARER=jwt-token" in route.calls.last.request.headers["cookie"]
+
+@respx.mock
 def test_captcha_lock_raises():
     respx.post(f"{BASE}/api/auth/login_check").mock(
         return_value=httpx.Response(401, headers={"X-Bns-Captcha": "1"}, json={}))
