@@ -10,12 +10,6 @@ def _client():
     return BeneyluClient(base_url=BASE, login="x", password="y")
 
 @respx.mock
-def test_get_me_and_children(fixture):
-    respx.get(f"{BASE}/api/auth/users/me").mock(return_value=httpx.Response(200, json=fixture("users_me.json")))
-    me = _client().get_me()
-    assert me.children[0].display_name == "Léo Parent"
-
-@respx.mock
 def test_boards_filters_archived_hidden(fixture):
     data = fixture("boards.json") + [{"id": "b3", "name": "old", "archived": True, "isHidden": False}]
     respx.get(f"{BASE}/api/cardboard/boards").mock(return_value=httpx.Response(200, json=data))

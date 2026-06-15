@@ -3,12 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-class Child(BaseModel):
-    id: int
-    username: str
-    display_name: str = Field(alias="displayName")
-    model_config = {"populate_by_name": True}
-
 class Board(BaseModel):
     id: str
     name: str
@@ -48,4 +42,3 @@ class MediaItem(BaseModel):
     attachment: CardAttachment
     board: Board
     card: Card
-    child: Child | None = None
