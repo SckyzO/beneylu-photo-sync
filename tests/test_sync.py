@@ -1,6 +1,5 @@
 # tests/test_sync.py
-from datetime import datetime
-from ent_exporter.sync import Synchronizer, SyncReport
+from ent_exporter.sync import Synchronizer
 from ent_exporter.models import Board, Card, CardAttachment, MediaItem, ResolvedMedia
 
 def _item(media_id=1):
@@ -22,7 +21,8 @@ class FakeClient:
                              mime_type="image/jpeg", downloadable=True,
                              url=f"https://s3/{att.media_id}.jpg")
     def download(self, url):
-        self.downloaded.append(url); yield b"DATA"
+        self.downloaded.append(url)
+        yield b"DATA"
 
 class FakeStorage:
     def __init__(self): self.written = {}

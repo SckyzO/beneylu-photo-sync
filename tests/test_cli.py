@@ -1,5 +1,6 @@
 # tests/test_cli.py
-import httpx, respx
+import httpx
+import respx
 from typer.testing import CliRunner
 from ent_exporter.cli import app
 

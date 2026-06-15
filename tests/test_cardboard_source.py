@@ -1,5 +1,6 @@
 # tests/test_cardboard_source.py
-import httpx, respx
+import httpx
+import respx
 from ent_exporter.client import BeneyluClient
 from ent_exporter.sources.cardboard import CardboardSource
 

@@ -1,5 +1,6 @@
 # tests/test_client_content.py
-import httpx, respx
+import httpx
+import respx
 from ent_exporter.client import BeneyluClient
 from ent_exporter.models import CardAttachment
 

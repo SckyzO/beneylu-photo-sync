@@ -1,5 +1,7 @@
 # tests/test_client_auth.py
-import httpx, respx, pytest
+import httpx
+import respx
+import pytest
 from ent_exporter.client import BeneyluClient
 from ent_exporter.errors import AuthError, CaptchaLockedError
 
