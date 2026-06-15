@@ -1,0 +1,12 @@
+# runtimes/docker/docker-compose.yml
+services:
+  ent-exporter:
+    build:
+      context: ../..
+      dockerfile: runtimes/docker/Dockerfile
+    environment:
+      ENT_LOGIN: ${ENT_LOGIN}
+      ENT_PASSWORD: ${ENT_PASSWORD}
+    volumes:
+      - ./data:/data
+    restart: "no"
