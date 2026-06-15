@@ -2,13 +2,9 @@
 from __future__ import annotations
 import httpx
 from typing import Iterator
-from pydantic import BaseModel
 from .errors import AuthError, CaptchaLockedError, MediaResolveError
-from .models import Board, Card, CardAttachment, Child, ResolvedMedia
+from .models import Board, Card, CardAttachment, ResolvedMedia
 
-
-class Me(BaseModel):
-    children: list[Child] = []
 
 class BeneyluClient:
     def __init__(self, base_url: str, login: str, password: str, timeout: float = 30.0):
@@ -41,19 +37,26 @@ class BeneyluClient:
         if new:
             self.refresh_token = new
 
-    def get_me(self) -> Me:
-        resp = self._http.get("/api/auth/users/me")
-        resp.raise_for_status()
-        return Me.model_validate(resp.json())
+    def _request(self, method: str, url: str, **kwargs) -> httpx.Response:
+        """Send an authenticated request, refreshing the JWT once on 401.
+
+        The BEARER JWT expires after ~15 min, shorter than a full-history sync.
+        On a 401 with a refresh token available, we refresh and retry once.
+        """
+        resp = self._http.request(method, url, **kwargs)
+        if resp.status_code == 401 and self.refresh_token:
+            self.refresh()
+            resp = self._http.request(method, url, **kwargs)
+        return resp
 
     def boards(self) -> list[Board]:
-        resp = self._http.get("/api/cardboard/boards")
+        resp = self._request("GET", "/api/cardboard/boards")
         resp.raise_for_status()
         boards = [Board.model_validate(b) for b in resp.json()]
         return [b for b in boards if not b.archived and not b.is_hidden]
 
     def cards(self, board_id: str) -> list[Card]:
-        resp = self._http.get(f"/api/cardboard/boards/{board_id}/cards")
+        resp = self._request("GET", f"/api/cardboard/boards/{board_id}/cards")
         resp.raise_for_status()
         return [Card.model_validate(c) for c in resp.json()]
 
@@ -61,13 +64,20 @@ class BeneyluClient:
         params = {"mediaId": att.media_id, "entityId": att.entity_id,
                   "entityType": att.entity_type, "timestamp": att.timestamp,
                   "signature": att.signature}
-        resp = self._http.get(f"/api/media-library/media/{att.media_id}", params=params)
+        resp = self._request("GET", f"/api/media-library/media/{att.media_id}", params=params)
         if resp.status_code != 200:
             raise MediaResolveError(f"Resolve media {att.media_id} failed: HTTP {resp.status_code}")
         return ResolvedMedia.model_validate(resp.json())
 
     def download(self, url: str) -> Iterator[bytes]:
         with self._http.stream("GET", url) as resp:
+            if resp.status_code == 401 and self.refresh_token:
+                resp.close()
+                self.refresh()
+                with self._http.stream("GET", url) as retry:
+                    retry.raise_for_status()
+                    yield from retry.iter_bytes()
+                return
             resp.raise_for_status()
             yield from resp.iter_bytes()
 
