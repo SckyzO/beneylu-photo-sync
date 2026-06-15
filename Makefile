@@ -6,13 +6,13 @@ DOCKER_RUN = docker run --rm -v "$(CURDIR)":/app -w /app $(PY_IMAGE) sh -c
 
 # Lint + tests, the bar for "done". Pulls latest dev deps each run.
 check:
-	$(DOCKER_RUN) "pip install --no-cache-dir -e '.[dev]' -q && ruff check src tests && pytest -q"
+	$(DOCKER_RUN) "pip install --no-cache-dir -e '.[dev,web]' -q && ruff check src tests && pytest -q"
 
 lint:
-	$(DOCKER_RUN) "pip install --no-cache-dir -e '.[dev]' -q && ruff check src tests"
+	$(DOCKER_RUN) "pip install --no-cache-dir -e '.[dev,web]' -q && ruff check src tests"
 
 test:
-	$(DOCKER_RUN) "pip install --no-cache-dir -e '.[dev]' -q && pytest -q"
+	$(DOCKER_RUN) "pip install --no-cache-dir -e '.[dev,web]' -q && pytest -q"
 
 shell:
 	docker run --rm -it -v "$(CURDIR)":/app -w /app $(PY_IMAGE) bash
