@@ -18,5 +18,22 @@ def test_cardboard_yields_only_image_attachments(fixture):
     assert items[0].board.name == "DANS LA CLASSE DES PS"
     assert items[0].card.id == "card-uuid-1"
 
+@respx.mock
+def test_cardboard_skips_non_image_card_with_attachment(fixture):
+    cards = [
+        {"type": "file", "id": "card-file", "creatorId": 300, "content": None,
+         "description": "Doc", "createdAt": "2026-06-12T18:24:16+02:00",
+         "updatedAt": "2026-06-12T18:24:16+02:00", "position": 1,
+         "cardAttachments": [{"mediaId": 999, "resourceId": None, "entityId": "card-file",
+                              "entityType": "Card", "timestamp": 1781479136, "signature": "sigX"}]},
+    ]
+    respx.get(f"{BASE}/api/cardboard/boards").mock(return_value=httpx.Response(200, json=fixture("boards.json")[:1]))
+    respx.get(f"{BASE}/api/cardboard/boards/board-uuid-1/cards").mock(
+        return_value=httpx.Response(200, json=cards))
+    client = BeneyluClient(base_url=BASE, login="x", password="y")
+    items = list(CardboardSource().iter_items(client))
+    assert items == []  # non-image card excluded even though it carries an attachment
+
+
 def test_source_has_name():
     assert CardboardSource().name == "cardboard"
