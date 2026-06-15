@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from . import naming
+from .exif import capture_date
 
 log = logging.getLogger("ent_exporter.sync")
 
@@ -37,11 +38,12 @@ class Synchronizer:
             report.skipped += 1
             return
         media = self.client.resolve_media(item.attachment)
-        taken_at = item.card.created_at
+        data = b"".join(self.client.download(media.url))
+        taken_at = capture_date(data) or item.card.created_at
         key = naming.path_for(item.board.name, media.label, taken_at, item.media_id,
                               exists=self.storage.exists)
         if not self.storage.exists(key):
-            self.storage.write(key, self.client.download(media.url))
+            self.storage.write(key, iter([data]))
         self.state.record(media_id=item.media_id, board_id=item.board.id,
                           card_id=item.card.id, path=key,
                           card_updated_at=item.card.updated_at.isoformat())
