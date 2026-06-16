@@ -1,6 +1,7 @@
 from __future__ import annotations
 import dataclasses
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
@@ -15,6 +16,7 @@ from ..storage.filesystem import FilesystemStorage
 from ..sync import Synchronizer
 from . import auth, gallery, thumbnails
 from .jobs import SyncRunner
+from .scheduler import IntervalScheduler
 from .settings_store import SettingsStore
 
 WEB_DIR = Path(__file__).parent
@@ -44,7 +46,17 @@ def create_app(store: SettingsStore | None = None,
         runner = SyncRunner(_default_job(store))
 
     templates = Jinja2Templates(directory=str(WEB_DIR / "templates"))
-    app = FastAPI()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        cfg = store.effective()
+        scheduler = IntervalScheduler(cfg.sync_interval_hours, runner.trigger)
+        scheduler.start()
+        app.state.scheduler = scheduler
+        yield
+        scheduler.stop()
+
+    app = FastAPI(lifespan=lifespan)
     app.mount("/static", StaticFiles(directory=str(WEB_DIR / "static")), name="static")
 
     def guard(request: Request):

@@ -10,3 +10,16 @@ services:
     volumes:
       - ./data:/data
     restart: "no"
+
+  web:
+    build:
+      context: ../..
+      dockerfile: runtimes/docker/Dockerfile.web
+    environment:
+      ENT_WEB_PASSWORD: ${ENT_WEB_PASSWORD:-}
+      ENT_SYNC_INTERVAL_HOURS: ${ENT_SYNC_INTERVAL_HOURS:-0}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
