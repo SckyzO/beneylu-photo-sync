@@ -25,8 +25,10 @@ toi** ; rien n'est envoyé ailleurs que vers l'ENT lui-même.
 ```bash
 git clone <repo> && cd ent_exporter
 cp .env.example .env   # puis renseigne ENT_LOGIN / ENT_PASSWORD
-docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter sync
 ```
+
+Deux façons de l'utiliser : l'**interface web** (galerie + bouton de sync) ou la **ligne
+de commande**.
 
 ## Configuration
 
@@ -35,21 +37,42 @@ docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter sync
 | `ENT_LOGIN` | identifiant ENT | — |
 | `ENT_PASSWORD` | mot de passe ENT | — |
 | `ENT_DATA_DIR` | dossier des photos | `./data` |
+| `ENT_WEB_PASSWORD` | mot de passe d'accès à l'UI web (optionnel) | — (accès libre) |
+| `ENT_SYNC_INTERVAL_HOURS` | sync automatique toutes les N heures (`0` = manuel) | `0` |
+
+Les identifiants peuvent aussi se saisir directement dans la page **Configuration** de
+l'UI ; ils sont stockés dans un fichier `chmod 600`. Les variables d'environnement
+restent prioritaires.
 
 ## Utilisation
 
+### Interface web (recommandé)
+
 ```bash
-ent-exporter login-test   # vérifie la connexion
-ent-exporter list-boards  # liste les tableaux
-ent-exporter sync         # télécharge les nouvelles photos
+docker compose -f runtimes/docker/docker-compose.yml up web
+```
+
+Ouvre <http://127.0.0.1:8000> : renseigne tes identifiants ENT dans **Configuration**,
+clique **Synchroniser maintenant**, puis parcours la galerie (photos groupées par tableau
+puis par mois). Pour une sync automatique, règle la fréquence en heures
+(`ENT_SYNC_INTERVAL_HOURS`). L'UI écoute sur `127.0.0.1` par défaut ; pour l'exposer sur
+le réseau, définis `ENT_WEB_PASSWORD` (un avertissement est émis au démarrage sinon).
+
+### En ligne de commande
+
+```bash
+docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter login-test   # vérifie la connexion
+docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter list-boards  # liste les tableaux
+docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter sync         # télécharge les nouvelles photos
 ```
 
 ## Captures d'écran
 
-> ⏳ _À venir avec l'interface web (v1)._
+> 🖼️ La galerie n'a d'intérêt qu'avec **tes propres photos** : lance une première sync,
+> puis place tes captures dans `docs/screenshots/` et décommente les lignes ci-dessous.
 >
-> <!-- ![Page de connexion](docs/screenshots/login.png) -->
 > <!-- ![Galerie des photos](docs/screenshots/gallery.png) -->
+> <!-- ![Configuration](docs/screenshots/config.png) -->
 
 ## Vie privée & sécurité
 
