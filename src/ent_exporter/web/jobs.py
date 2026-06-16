@@ -29,10 +29,6 @@ class SyncRunner:
         self._thread: threading.Thread | None = None
         self.status = RunStatus()
 
-    @property
-    def running(self) -> bool:
-        return self._thread is not None and self._thread.is_alive()
-
     def trigger(self) -> bool:
         """Start a run if none is in progress. Returns True if started."""
         if not self._lock.acquire(blocking=False):

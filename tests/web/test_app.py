@@ -75,6 +75,14 @@ def test_photo_route_rejects_traversal(env):
     assert r.status_code == 404
 
 
+def test_thumb_rejects_non_image(env):
+    # A real file under the data root but not an image must 404, not 500.
+    _touch(env / "PS" / "2026-06" / "notes.txt")
+    client, _, _ = _client(env)
+    assert client.get("/thumb/PS/2026-06/notes.txt").status_code == 404
+    assert client.get("/photo/PS/2026-06/notes.txt").status_code == 404
+
+
 def test_password_gate_redirects_to_login(env, monkeypatch):
     monkeypatch.setenv("ENT_WEB_PASSWORD", "letmein")
     store = SettingsStore(env / "config.json")

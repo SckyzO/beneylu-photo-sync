@@ -72,20 +72,25 @@ def create_app(store: SettingsStore | None = None,
             context={"boards": gallery.scan(cfg.data_dir), "status": runner.status,
                      "configured": bool(cfg.login and cfg.password)})
 
+    def _resolve_image(data_dir, key):
+        # Only ever serve image files that live under the data root; reject
+        # traversal (safe_resolve) and non-images so /thumb can't 500 on a
+        # file Pillow can't open.
+        src = gallery.safe_resolve(data_dir, key)
+        if not src or src.suffix.lower() not in gallery.IMAGE_EXTS:
+            raise HTTPException(status_code=404)
+        return src
+
     @app.get("/thumb/{key:path}")
     def thumb(key: str, _=Depends(guard)):
         cfg = store.effective()
-        src = gallery.safe_resolve(cfg.data_dir, key)
-        if not src:
-            raise HTTPException(status_code=404)
+        src = _resolve_image(cfg.data_dir, key)
         return FileResponse(thumbnails.get_or_create(cfg.data_dir, src, key))
 
     @app.get("/photo/{key:path}")
     def photo(key: str, _=Depends(guard)):
         cfg = store.effective()
-        src = gallery.safe_resolve(cfg.data_dir, key)
-        if not src:
-            raise HTTPException(status_code=404)
+        src = _resolve_image(cfg.data_dir, key)
         return FileResponse(src)
 
     @app.post("/sync")

@@ -3,8 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .thumbnails import THUMB_DIR
+
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
-THUMB_DIR = ".thumbnails"
 
 
 @dataclass

@@ -2,7 +2,7 @@
 {% block content %}
 <section class="toolbar">
   <form method="post" action="/sync">
-    <button type="submit" {% if not configured %}disabled{% endif %}>Synchroniser maintenant</button>
+    <button type="submit" {% if not configured or status.state == "running" %}disabled{% endif %}>Synchroniser maintenant</button>
   </form>
   <span id="status" data-state="{{ status.state }}">{{ status.state }}</span>
 </section>

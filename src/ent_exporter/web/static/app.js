@@ -5,7 +5,12 @@
     try {
       const r = await fetch("/api/status");
       const s = await r.json();
-      el.textContent = s.state + (s.last_error ? " — " + s.last_error : "");
+      let label = s.state;
+      if (s.state === "error" && s.last_error) label += " — " + s.last_error;
+      else if (s.state === "idle" && s.last_run_at) {
+        label += ` — ${s.downloaded} téléchargées, ${s.skipped} ignorées, ${s.errors} erreurs`;
+      }
+      el.textContent = label;
       el.dataset.state = s.state;
       if (s.state === "running") return setTimeout(poll, 1000);
     } catch (e) { /* keep last shown state */ }
