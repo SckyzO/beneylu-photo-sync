@@ -1,4 +1,14 @@
 (function () {
+  // Theme toggle: flip .dark on <html>, persist choice. Default is dark.
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      const dark = document.documentElement.classList.toggle("dark");
+      try { localStorage.theme = dark ? "dark" : "light"; } catch (e) {}
+    });
+  }
+
+  // Sync status polling (unchanged behavior).
   const el = document.getElementById("status");
   if (!el) return;
   async function poll() {

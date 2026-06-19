@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Configuration</h2>
-<form method="post" action="/config" class="form">
-  <label>Identifiant ENT
-    <input type="text" name="login" value="{{ login }}" autocomplete="username">
+<h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white/90">Configuration</h2>
+<form method="post" action="/config" class="flex max-w-md flex-col gap-4">
+  <label class="flex flex-col gap-1 text-sm">Identifiant ENT
+    <input type="text" name="login" value="{{ login }}" autocomplete="username"
+      class="rounded-lg border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700">
   </label>
-  <label>Mot de passe ENT {% if has_password %}<em>(déjà enregistré — laisser vide pour ne pas changer)</em>{% endif %}
-    <input type="password" name="password" autocomplete="new-password" placeholder="••••••••">
+  <label class="flex flex-col gap-1 text-sm">Mot de passe ENT {% if has_password %}<em class="text-gray-400">(déjà enregistré — laisser vide pour ne pas changer)</em>{% endif %}
+    <input type="password" name="password" autocomplete="new-password" placeholder="••••••••"
+      class="rounded-lg border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700">
   </label>
-  <label>Fréquence de synchronisation (heures, 0 = manuel)
-    <input type="number" name="sync_interval_hours" min="0" value="{{ sync_interval_hours }}">
-    <small>La fréquence s'applique au <strong>redémarrage</strong> du service.</small>
+  <label class="flex flex-col gap-1 text-sm">Fréquence de synchronisation (heures, 0 = manuel)
+    <input type="number" name="sync_interval_hours" min="0" value="{{ sync_interval_hours }}"
+      class="rounded-lg border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700">
+    <small class="text-gray-400">La fréquence s'applique au <strong>redémarrage</strong> du service.</small>
   </label>
-  <button type="submit">Enregistrer</button>
+  <button type="submit"
+    class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Enregistrer</button>
 </form>
 {% endblock %}

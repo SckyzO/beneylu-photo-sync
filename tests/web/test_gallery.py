@@ -6,33 +6,36 @@ def _touch(p):
     p.write_bytes(b"x")
 
 
-def test_scan_groups_by_board_then_month(tmp_path):
-    _touch(tmp_path / "PS" / "2026-06" / "a.jpg")
-    _touch(tmp_path / "PS" / "2026-05" / "b.png")
-    _touch(tmp_path / ".thumbnails" / "PS" / "2026-06" / "a.jpg.jpg")
-    _touch(tmp_path / "PS" / "2026-06" / "notes.txt")  # non-image ignored
+def test_scan_groups_by_board_month_section(tmp_path):
+    _touch(tmp_path / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    _touch(tmp_path / "PS" / "2026-06" / "Arts" / "b.png")
+    _touch(tmp_path / "PS" / "2026-05" / "sans-titre" / "c.jpg")
+    _touch(tmp_path / ".thumbnails" / "PS" / "2026-06" / "Sortie" / "a.jpg.jpg")
+    _touch(tmp_path / "PS" / "2026-06" / "Sortie" / "notes.txt")  # non-image ignored
 
     boards = scan(tmp_path)
     assert [b.board for b in boards] == ["PS"]
     months = boards[0].months
     assert [m.month for m in months] == ["2026-06", "2026-05"]  # newest first
-    assert [p.name for p in months[0].photos] == ["a.jpg"]
-    assert months[0].photos[0].key == "PS/2026-06/a.jpg"
+    assert [s.section for s in months[0].sections] == ["Arts", "Sortie"]  # alpha
+    assert months[0].sections[0].photos[0].key == "PS/2026-06/Arts/b.png"
+    assert months[1].sections[0].section == "sans-titre"
 
 
-def test_scan_finds_photos_nested_in_sections(tmp_path):
-    # Section grouping nests photos under board/month/<section>/file.
-    _touch(tmp_path / "PS" / "2026-06" / "Sortie ferme" / "x.jpg")
-    _touch(tmp_path / "PS" / "2026-06" / "Arts" / "y.jpg")
-    _touch(tmp_path / "PS" / "2026-05" / "sans-titre" / "z.png")
-
+def test_scan_legacy_two_level_becomes_sans_titre(tmp_path):
+    # board/month/file (no section folder) -> single "sans-titre" section.
+    _touch(tmp_path / "PS" / "2026-06" / "a.jpg")
     boards = scan(tmp_path)
-    assert [b.board for b in boards] == ["PS"]
-    assert [m.month for m in boards[0].months] == ["2026-06", "2026-05"]
-    june_keys = [p.key for p in boards[0].months[0].photos]
-    assert "PS/2026-06/Arts/y.jpg" in june_keys
-    assert "PS/2026-06/Sortie ferme/x.jpg" in june_keys
-    assert boards[0].months[1].photos[0].key == "PS/2026-05/sans-titre/z.png"
+    sections = boards[0].months[0].sections
+    assert [s.section for s in sections] == ["sans-titre"]
+    assert sections[0].photos[0].key == "PS/2026-06/a.jpg"
+
+
+def test_scan_sans_titre_sorted_last(tmp_path):
+    _touch(tmp_path / "PS" / "2026-06" / "Zoo" / "a.jpg")
+    _touch(tmp_path / "PS" / "2026-06" / "a.jpg")  # -> sans-titre
+    boards = scan(tmp_path)
+    assert [s.section for s in boards[0].months[0].sections] == ["Zoo", "sans-titre"]
 
 
 def test_scan_missing_root_is_empty(tmp_path):

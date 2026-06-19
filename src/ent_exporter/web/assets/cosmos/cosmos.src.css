@@ -1,0 +1,25 @@
+/* cosmos UI — Tailwind v4 entrypoint for ent_exporter.
+   Compile with `make css` (throwaway Node container). The output
+   ../../static/cosmos.css is the committed runtime source of truth.
+   Only the cosmos brand accent + Outfit font + class-based dark variant
+   are customized; everything else uses Tailwind v4 defaults (YAGNI). */
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap")
+  layer(base);
+
+@import "tailwindcss";
+
+@source "../../templates";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-outfit: Outfit, system-ui, sans-serif;
+
+  --color-brand-50: #ecf3ff;
+  --color-brand-100: #dde9ff;
+  --color-brand-300: #9cb9ff;
+  --color-brand-500: #465fff;
+  --color-brand-600: #3641f5;
+  --color-brand-700: #2a31d8;
+  --color-brand-800: #252dae;
+}

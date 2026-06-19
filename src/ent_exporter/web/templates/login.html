@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Connexion</h2>
-{% if error %}<p class="warn">Mot de passe incorrect.</p>{% endif %}
-<form method="post" action="/login" class="form">
-  <label>Mot de passe <input type="password" name="password" autofocus></label>
-  <button type="submit">Entrer</button>
-</form>
+<div class="mx-auto mt-10 max-w-sm rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+  <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white/90">Connexion</h2>
+  {% if error %}<p class="mb-3 rounded-lg bg-red-100 px-4 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">Mot de passe incorrect.</p>{% endif %}
+  <form method="post" action="/login" class="flex flex-col gap-4">
+    <label class="flex flex-col gap-1 text-sm">Mot de passe
+      <input type="password" name="password" autofocus
+        class="rounded-lg border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700">
+    </label>
+    <button type="submit"
+      class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Entrer</button>
+  </form>
+</div>
 {% endblock %}
