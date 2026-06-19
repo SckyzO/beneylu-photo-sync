@@ -1,25 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="toolbar">
+<section class="mb-6 flex items-center gap-4">
   <form method="post" action="/sync">
-    <button type="submit" {% if not configured or status.state == "running" %}disabled{% endif %}>Synchroniser maintenant</button>
+    <button type="submit"
+      class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+      {% if not configured or status.state == "running" %}disabled{% endif %}>
+      Synchroniser maintenant
+    </button>
   </form>
-  <span id="status" data-state="{{ status.state }}">{{ status.state }}</span>
+  <span id="status" data-state="{{ status.state }}"
+        class="text-sm text-gray-500 dark:text-gray-400">{{ status.state }}</span>
 </section>
 {% if not configured %}
-<p class="warn">Identifiants ENT manquants — renseigne-les dans <a href="/config">Configuration</a>.</p>
+<p class="mb-4 rounded-lg bg-amber-100 px-4 py-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+  Identifiants ENT manquants — renseigne-les dans <a class="underline" href="/config">Configuration</a>.
+</p>
 {% endif %}
 {% for board in boards %}
-<h2>{{ board.board }}</h2>
+<h2 class="mb-3 text-xl font-semibold text-gray-800 dark:text-white/90">{{ board.board }}</h2>
 {% for month in board.months %}
-<h3>{{ month.month }}</h3>
-<div class="grid">
-  {% for photo in month.photos %}
-  <a href="/photo/{{ photo.key }}"><img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"></a>
-  {% endfor %}
+<h3 class="mb-2 mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">{{ month.month }}</h3>
+{% for section in month.sections %}
+<div class="mb-4 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+  <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{{ section.section }}</h4>
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    {% for photo in section.photos %}
+    <a href="/photo/{{ photo.key }}">
+      <img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"
+           class="h-40 w-full rounded-xl object-cover">
+    </a>
+    {% endfor %}
+  </div>
 </div>
 {% endfor %}
+{% endfor %}
 {% else %}
-<p>Aucune photo pour l'instant. Lance une synchronisation.</p>
+<p class="text-gray-500 dark:text-gray-400">Aucune photo pour l'instant. Lance une synchronisation.</p>
 {% endfor %}
 {% endblock %}

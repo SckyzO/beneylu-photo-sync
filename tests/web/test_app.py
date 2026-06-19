@@ -83,6 +83,15 @@ def test_thumb_rejects_non_image(env):
     assert client.get("/photo/PS/2026-06/notes.txt").status_code == 404
 
 
+def test_gallery_renders_section_heading(env):
+    _touch(env / "PS" / "2026-06" / "Sortie ferme" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "Sortie ferme" in r.text
+    assert "/thumb/PS/2026-06/Sortie ferme/a.jpg" in r.text
+
+
 def test_base_uses_cosmos_css_and_dark_default(env):
     client, _, _ = _client(env)
     r = client.get("/")
