@@ -40,8 +40,8 @@ class Synchronizer:
         media = self.client.resolve_media(item.attachment)
         data = b"".join(self.client.download(media.url))
         taken_at = capture_date(data) or item.card.created_at
-        key = naming.path_for(item.board.name, media.label, taken_at, item.media_id,
-                              exists=self.storage.exists)
+        key = naming.path_for(item.board.name, item.card.description, media.label,
+                              taken_at, item.media_id, exists=self.storage.exists)
         if not self.storage.exists(key):
             self.storage.write(key, iter([data]))
         self.state.record(media_id=item.media_id, board_id=item.board.id,

@@ -34,4 +34,4 @@ def test_sync_reports_counts(fixture, tmp_path):
     result = runner.invoke(app, ["sync"], env=env)
     assert result.exit_code == 0
     assert "downloaded=1" in result.stdout
-    assert (tmp_path / "data" / "DANS LA CLASSE DES PS" / "2026-06" / "IMG_7363.jpg").read_bytes() == b"\xff\xd8\xffJPEG"
+    assert (tmp_path / "data" / "DANS LA CLASSE DES PS" / "2026-06" / "Sortie" / "IMG_7363.jpg").read_bytes() == b"\xff\xd8\xffJPEG"

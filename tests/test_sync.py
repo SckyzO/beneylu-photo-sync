@@ -19,10 +19,11 @@ def _jpeg(exif_date: str | None = None) -> bytes:
     return buf.getvalue()
 
 
-def _item(media_id=1):
+def _item(media_id=1, description=None):
     att = CardAttachment(mediaId=media_id, entityId="c1", entityType="Card", timestamp=1, signature="s")
     board = Board(id="b1", name="B")
-    card = Card(id="c1", type="image", createdAt="2026-06-12T18:24:16+02:00",
+    card = Card(id="c1", type="image", description=description,
+                createdAt="2026-06-12T18:24:16+02:00",
                 updatedAt="2026-06-12T18:24:16+02:00", cardAttachments=[att])
     return MediaItem(media_id=media_id, attachment=att, board=board, card=card)
 
@@ -57,7 +58,14 @@ def test_sync_downloads_new_item():
     client, storage, state = FakeClient(), FakeStorage(), FakeState()
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
     assert report.downloaded == 1
-    assert "B/2026-06/IMG_1.jpg" in storage.written
+    assert "B/2026-06/sans-titre/IMG_1.jpg" in storage.written
+
+def test_sync_groups_photos_by_card_section():
+    client, storage, state = FakeClient(), FakeStorage(), FakeState()
+    item = _item(1, description="Sortie scolaire ferme pédagogique")
+    report = Synchronizer(client, [FakeSource([item])], storage, state).run()
+    assert report.downloaded == 1
+    assert "B/2026-06/Sortie scolaire ferme pédagogique/IMG_1.jpg" in storage.written
 
 def test_sync_skips_known_item():
     client, storage, state = FakeClient(), FakeStorage(), FakeState(known={1})
@@ -76,7 +84,7 @@ def test_per_item_error_does_not_abort_run():
     report = Synchronizer(client, [FakeSource([_item(1), _item(2)])], storage, state).run()
     assert report.downloaded == 1
     assert report.errors == 1
-    assert "B/2026-06/IMG_2.jpg" in storage.written
+    assert "B/2026-06/sans-titre/IMG_2.jpg" in storage.written
 
 
 def test_sync_uses_exif_capture_date_for_path():
@@ -85,8 +93,8 @@ def test_sync_uses_exif_capture_date_for_path():
     storage, state = FakeStorage(), FakeState()
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
     assert report.downloaded == 1
-    assert "B/2026-03/IMG_1.jpg" in storage.written
-    assert "B/2026-06/IMG_1.jpg" not in storage.written
+    assert "B/2026-03/sans-titre/IMG_1.jpg" in storage.written
+    assert "B/2026-06/sans-titre/IMG_1.jpg" not in storage.written
 
 
 def test_sync_falls_back_to_created_at_without_exif():
@@ -94,4 +102,4 @@ def test_sync_falls_back_to_created_at_without_exif():
     storage, state = FakeStorage(), FakeState()
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
     assert report.downloaded == 1
-    assert "B/2026-06/IMG_1.jpg" in storage.written
+    assert "B/2026-06/sans-titre/IMG_1.jpg" in storage.written

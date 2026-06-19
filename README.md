@@ -13,7 +13,7 @@ et les range sur ton ordinateur ou ton cloud — sans avoir à les télécharger
 flowchart LR
     A["👨‍👩‍👧 Ton compte ENT<br/>ent-ecole.fr"] -->|connexion sécurisée| B["⚙️ ent_exporter"]
     B -->|lit les tableaux<br/>de la classe| C["🖼️ Photos publiées<br/>par l'école"]
-    C -->|télécharge<br/>les nouveautés| D["📁 Tes photos<br/>rangées par date"]
+    C -->|télécharge<br/>les nouveautés| D["📁 Tes photos<br/>rangées par date et section"]
 ```
 
 L'outil se connecte avec **tes identifiants ENT**, parcourt les tableaux de la classe,
