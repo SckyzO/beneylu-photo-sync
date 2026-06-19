@@ -83,6 +83,23 @@ def test_thumb_rejects_non_image(env):
     assert client.get("/photo/PS/2026-06/notes.txt").status_code == 404
 
 
+def test_config_page_is_cosmos_styled(env):
+    client, _, _ = _client(env)
+    r = client.get("/config")
+    assert r.status_code == 200
+    assert "focus:ring-brand-500/10" in r.text  # cosmos input styling present
+    assert 'name="login"' in r.text
+
+
+def test_login_page_is_cosmos_styled(env, monkeypatch):
+    monkeypatch.setenv("ENT_WEB_PASSWORD", "secret")
+    client, _, _ = _client(env)  # rebuilds app with login route mounted
+    r = client.get("/login")
+    assert r.status_code == 200
+    assert "rounded-2xl" in r.text  # cosmos card present
+    assert 'name="password"' in r.text
+
+
 def test_gallery_renders_section_heading(env):
     _touch(env / "PS" / "2026-06" / "Sortie ferme" / "a.jpg")
     client, _, _ = _client(env)
