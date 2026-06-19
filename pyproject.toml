@@ -14,6 +14,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.2", "respx>=0.21", "ruff>=0.5"]
+web = ["fastapi>=0.115", "jinja2>=3.1", "python-multipart>=0.0.9", "uvicorn[standard]>=0.30"]
 
 [project.scripts]
 ent-exporter = "ent_exporter.cli:app"
@@ -24,6 +25,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ent_exporter"]
+artifacts = ["src/ent_exporter/web/templates/*", "src/ent_exporter/web/static/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

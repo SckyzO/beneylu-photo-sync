@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Configuration</h2>
+<form method="post" action="/config" class="form">
+  <label>Identifiant ENT
+    <input type="text" name="login" value="{{ login }}" autocomplete="username">
+  </label>
+  <label>Mot de passe ENT {% if has_password %}<em>(déjà enregistré — laisser vide pour ne pas changer)</em>{% endif %}
+    <input type="password" name="password" autocomplete="new-password" placeholder="••••••••">
+  </label>
+  <label>Fréquence de synchronisation (heures, 0 = manuel)
+    <input type="number" name="sync_interval_hours" min="0" value="{{ sync_interval_hours }}">
+    <small>La fréquence s'applique au <strong>redémarrage</strong> du service.</small>
+  </label>
+  <button type="submit">Enregistrer</button>
+</form>
+{% endblock %}

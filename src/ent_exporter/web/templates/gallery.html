@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="toolbar">
+  <form method="post" action="/sync">
+    <button type="submit" {% if not configured or status.state == "running" %}disabled{% endif %}>Synchroniser maintenant</button>
+  </form>
+  <span id="status" data-state="{{ status.state }}">{{ status.state }}</span>
+</section>
+{% if not configured %}
+<p class="warn">Identifiants ENT manquants — renseigne-les dans <a href="/config">Configuration</a>.</p>
+{% endif %}
+{% for board in boards %}
+<h2>{{ board.board }}</h2>
+{% for month in board.months %}
+<h3>{{ month.month }}</h3>
+<div class="grid">
+  {% for photo in month.photos %}
+  <a href="/photo/{{ photo.key }}"><img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"></a>
+  {% endfor %}
+</div>
+{% endfor %}
+{% else %}
+<p>Aucune photo pour l'instant. Lance une synchronisation.</p>
+{% endfor %}
+{% endblock %}
