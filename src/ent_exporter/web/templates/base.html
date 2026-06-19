@@ -1,17 +1,34 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}ent_exporter{% endblock %}</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <script>
+    // Apply the persisted theme before first paint (no flash). Dark is default.
+    (function () {
+      try {
+        if (localStorage.theme === "light")
+          document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="/static/cosmos.css">
 </head>
-<body>
-  <header>
-    <a href="/" class="brand">📸 ent_exporter</a>
-    <nav><a href="/">Galerie</a> <a href="/config">Configuration</a></nav>
+<body class="min-h-screen bg-gray-50 font-outfit text-gray-800 dark:bg-gray-900 dark:text-white/90">
+  <header class="sticky top-0 z-50 flex items-center gap-4 border-b border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
+    <a href="/" class="text-lg font-bold">📸 ent_exporter</a>
+    <nav class="flex gap-4 text-sm">
+      <a href="/" class="hover:text-brand-500">Galerie</a>
+      <a href="/config" class="hover:text-brand-500">Configuration</a>
+    </nav>
+    <button id="theme-toggle" type="button" aria-label="Basculer le thème"
+      class="ml-auto rounded-lg border border-gray-200 px-3 py-1.5 text-sm dark:border-gray-800">
+      <span class="hidden dark:inline">☀️</span><span class="inline dark:hidden">🌙</span>
+    </button>
   </header>
-  <main>{% block content %}{% endblock %}</main>
+  <main class="mx-auto max-w-5xl px-5 py-6">{% block content %}{% endblock %}</main>
   <script src="/static/app.js"></script>
 </body>
 </html>

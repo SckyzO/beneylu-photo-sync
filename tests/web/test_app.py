@@ -83,6 +83,16 @@ def test_thumb_rejects_non_image(env):
     assert client.get("/photo/PS/2026-06/notes.txt").status_code == 404
 
 
+def test_base_uses_cosmos_css_and_dark_default(env):
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "/static/cosmos.css" in r.text
+    assert 'class="dark"' in r.text
+    assert "/static/style.css" not in r.text
+    assert 'id="theme-toggle"' in r.text
+
+
 def test_password_gate_redirects_to_login(env, monkeypatch):
     monkeypatch.setenv("ENT_WEB_PASSWORD", "letmein")
     store = SettingsStore(env / "config.json")
