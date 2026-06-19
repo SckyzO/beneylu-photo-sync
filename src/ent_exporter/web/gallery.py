@@ -34,20 +34,24 @@ def scan(root: Path | str) -> list[BoardGroup]:
     for board_dir in sorted(
         p for p in root.iterdir() if p.is_dir() and p.name != THUMB_DIR
     ):
-        months: list[MonthGroup] = []
-        for month_dir in sorted(
-            (p for p in board_dir.iterdir() if p.is_dir()), reverse=True
-        ):
-            photos = [
-                Photo(
-                    key=f"{board_dir.name}/{month_dir.name}/{f.name}",
-                    name=f.name,
-                )
-                for f in sorted(month_dir.iterdir())
-                if f.is_file() and f.suffix.lower() in IMAGE_EXTS
-            ]
-            if photos:
-                months.append(MonthGroup(month=month_dir.name, photos=photos))
+        # Photos may live as board/month/file or, since section grouping,
+        # board/month/section/file. Group by the month component (first level
+        # under the board) regardless of any deeper section folders.
+        by_month: dict[str, list[Photo]] = {}
+        for f in board_dir.rglob("*"):
+            if not f.is_file() or f.suffix.lower() not in IMAGE_EXTS:
+                continue
+            rel = f.relative_to(root)
+            if THUMB_DIR in rel.parts or len(rel.parts) < 3:
+                continue
+            month = rel.parts[1]
+            by_month.setdefault(month, []).append(
+                Photo(key=rel.as_posix(), name=f.name)
+            )
+        months = [
+            MonthGroup(month=m, photos=sorted(by_month[m], key=lambda p: p.key))
+            for m in sorted(by_month, reverse=True)
+        ]
         if months:
             boards.append(BoardGroup(board=board_dir.name, months=months))
     return boards
