@@ -21,8 +21,16 @@ def test_section_folder_cuts_at_first_inline_bullet():
     assert section_folder("Explorer le monde -Entraînement au découpage") == "Explorer le monde"
 
 def test_section_folder_first_line_with_colon():
-    # First line only; the colon is path-sanitized to underscore.
-    assert section_folder("ARTS:\nThématiques printemps") == "ARTS_"
+    # First line only; the colon is path-sanitized then stripped as a trailing
+    # separator artifact, so "ARTS:" yields a clean "ARTS".
+    assert section_folder("ARTS:\nThématiques printemps") == "ARTS"
+
+def test_section_folder_strips_trailing_separator_artifacts():
+    # A title ending in ":" (sanitized to "_") or other separator punctuation
+    # must not keep a dangling artifact like "Écrit_" or "Maths,".
+    assert section_folder("Écrit:\n -Graphisme: échelles") == "Écrit"
+    assert section_folder("Explorer le monde: -Entraînement au découpage") == "Explorer le monde"
+    assert section_folder("Maths,") == "Maths"
 
 def test_section_folder_blank_or_empty_falls_back():
     assert section_folder(None) == "sans-titre"

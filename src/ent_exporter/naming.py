@@ -33,7 +33,9 @@ def section_folder(description: str | None) -> str:
     first = _BULLET.split(first, maxsplit=1)[0]
     text = _WHITESPACE.sub(" ", first).strip()
     text = _UNSAFE.sub("_", text)
-    text = text[:SECTION_MAXLEN].rstrip(" .")
+    # Strip trailing separator artifacts: a title ending in ":" becomes "_"
+    # after sanitization, and trailing " . _ , -" all read as noise on a folder.
+    text = text[:SECTION_MAXLEN].rstrip(" ._,-")
     return text or SECTION_FALLBACK
 
 def path_for(board_name: str, section: str | None, label: str, taken_at: datetime,
