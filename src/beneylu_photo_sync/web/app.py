@@ -1,5 +1,6 @@
 from __future__ import annotations
 import dataclasses
+import logging
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -19,6 +20,8 @@ from . import archive, auth, gallery, thumbnails
 from .jobs import SyncRunner
 from .scheduler import IntervalScheduler
 from .settings_store import SettingsStore
+
+log = logging.getLogger("beneylu_photo_sync.web.app")
 
 WEB_DIR = Path(__file__).parent
 
@@ -99,7 +102,14 @@ def create_app(store: SettingsStore | None = None,
     def thumb(key: str, _=Depends(guard)):
         cfg = store.effective()
         src = _resolve_image(cfg.data_dir, key)
-        return FileResponse(thumbnails.get_or_create(cfg.data_dir, src, key))
+        try:
+            out = thumbnails.get_or_create(cfg.data_dir, src, key)
+        except Exception:
+            # Corrupt, truncated or oversized image: degrade to 404 instead of
+            # 500. Logged (not swallowed) so bad files remain diagnosable.
+            log.warning("Thumbnail generation failed for %s", key, exc_info=True)
+            raise HTTPException(status_code=404)
+        return FileResponse(out)
 
     @app.get("/photo/{key:path}")
     def photo(key: str, _=Depends(guard)):

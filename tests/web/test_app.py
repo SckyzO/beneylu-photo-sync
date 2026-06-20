@@ -85,6 +85,16 @@ def test_thumb_rejects_non_image(env):
     assert client.get("/photo/PS/2026-06/notes.txt").status_code == 404
 
 
+def test_thumb_corrupt_image_is_404_not_500(env):
+    # A file with an image suffix but unreadable bytes must degrade to 404,
+    # never crash the route with a 500.
+    p = env / "PS" / "2026-06" / "broken.jpg"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(b"not a real jpeg")
+    client, _, _ = _client(env)
+    assert client.get("/thumb/PS/2026-06/broken.jpg").status_code == 404
+
+
 def test_config_page_is_cosmos_styled(env):
     client, _, _ = _client(env)
     r = client.get("/config")
