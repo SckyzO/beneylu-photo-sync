@@ -104,10 +104,20 @@
     const caption = document.createElement("div");
     caption.className = "absolute bottom-4 left-1/2 -translate-x-1/2 rounded-xl bg-black/50 px-3 py-1 text-sm text-white/90";
 
+    // Download the photo currently shown. A plain <a download> hitting the same
+    // /photo/{key} the image loads from; the browser saves it under data-name.
+    const download = document.createElement("a");
+    download.id = "lb-download";
+    download.setAttribute("aria-label", "Télécharger la photo");
+    download.setAttribute("title", "Télécharger la photo");
+    download.className = "absolute left-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-xl text-white/80 hover:text-white";
+    download.innerHTML = '<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>';
+
     overlay.appendChild(makeBtn("prev", "Précédent", "absolute left-4 top-1/2 -translate-y-1/2 px-4 py-2 text-3xl text-white/80 hover:text-white", "‹"));
     overlay.appendChild(img);
     overlay.appendChild(makeBtn("next", "Suivant", "absolute right-4 top-1/2 -translate-y-1/2 px-4 py-2 text-3xl text-white/80 hover:text-white", "›"));
     overlay.appendChild(makeBtn("close", "Fermer", "absolute right-4 top-4 px-3 py-1 text-2xl text-white/80 hover:text-white", "✕"));
+    overlay.appendChild(download);
     overlay.appendChild(counter);
     overlay.appendChild(caption);
     document.body.appendChild(overlay);
@@ -118,9 +128,12 @@
     function show(i) {
       index = (i + group.length) % group.length;
       const a = group[index];
-      img.src = a.getAttribute("data-full") || a.getAttribute("href");
+      const full = a.getAttribute("data-full") || a.getAttribute("href");
+      img.src = full;
       img.alt = a.getAttribute("data-name") || "";
       const name = a.getAttribute("data-name") || "";
+      download.href = full;
+      download.setAttribute("download", name || "");
       caption.textContent = name;
       caption.style.display = name ? "" : "none";
       counter.textContent = (index + 1) + " / " + group.length;
