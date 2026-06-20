@@ -16,3 +16,16 @@ def test_password_not_in_repr(monkeypatch):
     monkeypatch.setenv("ENT_PASSWORD", "topsecret")
     s = Settings()
     assert "topsecret" not in repr(s)
+
+def test_excluded_boards_parsed_from_comma_list(monkeypatch):
+    monkeypatch.setenv("ENT_LOGIN", "x")
+    monkeypatch.setenv("ENT_PASSWORD", "y")
+    monkeypatch.setenv("ENT_EXCLUDED_BOARDS", "APEIT, Vie de l'école ")
+    s = Settings()
+    assert s.excluded_boards == ["APEIT", "Vie de l'école"]
+
+def test_excluded_boards_defaults_empty(monkeypatch):
+    monkeypatch.setenv("ENT_LOGIN", "x")
+    monkeypatch.setenv("ENT_PASSWORD", "y")
+    monkeypatch.delenv("ENT_EXCLUDED_BOARDS", raising=False)
+    assert Settings().excluded_boards == []
