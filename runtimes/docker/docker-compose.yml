@@ -1,6 +1,6 @@
 # runtimes/docker/docker-compose.yml
 services:
-  ent-exporter:
+  sync:
     build:
       context: ../..
       dockerfile: runtimes/docker/Dockerfile

@@ -6,5 +6,5 @@ COPY src ./src
 RUN pip install --no-cache-dir .
 ENV ENT_DATA_DIR=/data ENT_STATE_DB=/data/state.db
 VOLUME ["/data"]
-ENTRYPOINT ["ent-exporter"]
+ENTRYPOINT ["beneylu-photo-sync"]
 CMD ["sync"]

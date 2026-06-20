@@ -1,6 +1,6 @@
 import threading
 from dataclasses import dataclass
-from ent_exporter.web.jobs import SyncRunner
+from beneylu_photo_sync.web.jobs import SyncRunner
 
 
 @dataclass

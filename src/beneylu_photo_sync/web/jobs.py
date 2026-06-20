@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Callable, Optional
 
-log = logging.getLogger("ent_exporter.web.jobs")
+log = logging.getLogger("beneylu_photo_sync.web.jobs")
 
 
 @dataclass

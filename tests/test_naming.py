@@ -1,6 +1,6 @@
 # tests/test_naming.py
 from datetime import datetime
-from ent_exporter.naming import path_for, sanitize, month_folder, section_folder
+from beneylu_photo_sync.core.naming import path_for, sanitize, month_folder, section_folder
 
 def test_sanitize_removes_unsafe_chars():
     assert sanitize("DANS LA CLASSE DES PS") == "DANS LA CLASSE DES PS"

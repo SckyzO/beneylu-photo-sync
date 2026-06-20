@@ -6,7 +6,7 @@ import uvicorn
 
 from .app import create_app
 
-log = logging.getLogger("ent_exporter.web")
+log = logging.getLogger("beneylu_photo_sync.web")
 
 
 def main() -> None:

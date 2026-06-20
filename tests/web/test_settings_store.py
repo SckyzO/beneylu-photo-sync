@@ -1,7 +1,7 @@
 import json
 import stat
 from pathlib import Path
-from ent_exporter.web.settings_store import SettingsStore
+from beneylu_photo_sync.web.settings_store import SettingsStore
 
 
 def test_save_writes_0600_and_roundtrips(tmp_path, monkeypatch):

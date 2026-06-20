@@ -1,6 +1,6 @@
 import threading
 import time
-from ent_exporter.web.scheduler import IntervalScheduler
+from beneylu_photo_sync.web.scheduler import IntervalScheduler
 
 
 def test_disabled_when_interval_zero():

@@ -4,9 +4,9 @@ import threading
 import zipfile
 import pytest
 from fastapi.testclient import TestClient
-from ent_exporter.web.app import create_app
-from ent_exporter.web.settings_store import SettingsStore
-from ent_exporter.web.jobs import SyncRunner
+from beneylu_photo_sync.web.app import create_app
+from beneylu_photo_sync.web.settings_store import SettingsStore
+from beneylu_photo_sync.web.jobs import SyncRunner
 
 
 class FakeReport:
@@ -126,7 +126,7 @@ def test_branding_uses_name_and_svg_icons(env):
     r = client.get("/")
     assert r.status_code == 200
     assert "Beneylu Photo Sync" in r.text       # new display name
-    assert "ent_exporter" not in r.text          # old name gone from the page
+    assert "beneylu_photo_sync" not in r.text          # old name gone from the page
     assert "📸" not in r.text and "☀️" not in r.text and "🌙" not in r.text  # no emoji
     assert r.text.count("<svg") >= 3             # camera + sun + moon marks
 
@@ -280,7 +280,7 @@ def test_download_rejects_traversal_and_unknown(env):
 
 
 def test_download_thumbnail_dir_is_404(env):
-    from ent_exporter.web.thumbnails import THUMB_DIR
+    from beneylu_photo_sync.web.thumbnails import THUMB_DIR
     _touch(env / THUMB_DIR / "x.jpg")
     client, _, _ = _client(env)
     assert client.get(f"/download/{THUMB_DIR}").status_code == 404

@@ -2,7 +2,7 @@
 import httpx
 import respx
 import pytest
-from ent_exporter.client import BeneyluClient
+from beneylu_photo_sync.core.client import BeneyluClient
 
 BASE = "https://www.ent-ecole.fr"
 

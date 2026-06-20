@@ -1,5 +1,5 @@
 # tests/test_state.py
-from ent_exporter.state import StateStore
+from beneylu_photo_sync.core.state import StateStore
 
 def test_record_then_has(tmp_path):
     st = StateStore(tmp_path / "state.db")

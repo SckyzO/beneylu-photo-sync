@@ -1,4 +1,4 @@
-from ent_exporter.web import auth
+from beneylu_photo_sync.web import auth
 
 
 class FakeRequest:

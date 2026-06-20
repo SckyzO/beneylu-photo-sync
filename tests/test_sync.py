@@ -1,6 +1,6 @@
 # tests/test_sync.py
-from ent_exporter.sync import Synchronizer
-from ent_exporter.models import Board, Card, CardAttachment, MediaItem, ResolvedMedia
+from beneylu_photo_sync.core.sync import Synchronizer
+from beneylu_photo_sync.core.models import Board, Card, CardAttachment, MediaItem, ResolvedMedia
 
 
 def _item(media_id=1, description=None):

@@ -1,4 +1,4 @@
-# src/ent_exporter/sources/base.py
+# src/beneylu_photo_sync/core/sources/base.py
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Iterable

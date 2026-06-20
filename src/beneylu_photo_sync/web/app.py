@@ -10,11 +10,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.background import BackgroundTask
 
-from ..client import BeneyluClient
-from ..sources.cardboard import CardboardSource
-from ..state import StateStore
-from ..storage.filesystem import FilesystemStorage
-from ..sync import Synchronizer
+from ..core.client import BeneyluClient
+from ..core.sources.cardboard import CardboardSource
+from ..core.state import StateStore
+from ..core.storage.filesystem import FilesystemStorage
+from ..core.sync import Synchronizer
 from . import archive, auth, gallery, thumbnails
 from .jobs import SyncRunner
 from .scheduler import IntervalScheduler

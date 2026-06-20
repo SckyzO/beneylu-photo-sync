@@ -1,8 +1,8 @@
 # tests/test_client_content.py
 import httpx
 import respx
-from ent_exporter.client import BeneyluClient
-from ent_exporter.models import CardAttachment
+from beneylu_photo_sync.core.client import BeneyluClient
+from beneylu_photo_sync.core.models import CardAttachment
 
 BASE = "https://www.ent-ecole.fr"
 
@@ -58,7 +58,7 @@ def test_cards_requests_high_limit_to_fetch_all(fixture):
 
 @respx.mock
 def test_cards_warns_when_limit_saturated(fixture, monkeypatch, caplog):
-    import ent_exporter.client as client_mod
+    import beneylu_photo_sync.core.client as client_mod
     monkeypatch.setattr(client_mod, "CARDS_PAGE_LIMIT", 2)  # fixture has 2 cards -> saturates
     respx.get(f"{BASE}/api/cardboard/boards/b1/cards").mock(
         return_value=httpx.Response(200, json=fixture("cards.json")))

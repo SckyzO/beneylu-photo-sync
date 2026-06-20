@@ -1,4 +1,4 @@
-/* cosmos UI — Tailwind v4 entrypoint for ent_exporter.
+/* cosmos UI — Tailwind v4 entrypoint for beneylu_photo_sync.
    Compile with `make css` (throwaway Node container). The output
    ../../static/cosmos.css is the committed runtime source of truth.
    Only the cosmos brand accent + Outfit font + class-based dark variant

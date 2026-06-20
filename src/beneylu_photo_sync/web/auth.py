@@ -11,7 +11,7 @@ def password_required() -> str | None:
 
 
 def _token(password: str) -> str:
-    return hmac.new(password.encode(), b"ent-exporter-session",
+    return hmac.new(password.encode(), b"beneylu-photo-sync-session",
                     hashlib.sha256).hexdigest()
 
 

@@ -1,5 +1,5 @@
 import logging
-from ent_exporter.web import __main__ as entry
+from beneylu_photo_sync.web import __main__ as entry
 
 
 def test_warns_when_bound_to_all_interfaces(monkeypatch, caplog):

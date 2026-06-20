@@ -7,4 +7,4 @@ ENV ENT_DATA_DIR=/data ENT_STATE_DB=/data/state.db \
     ENT_CONFIG_FILE=/data/config.json ENT_WEB_HOST=0.0.0.0 ENT_WEB_PORT=8000
 VOLUME ["/data"]
 EXPOSE 8000
-ENTRYPOINT ["python", "-m", "ent_exporter.web"]
+ENTRYPOINT ["python", "-m", "beneylu_photo_sync.web"]

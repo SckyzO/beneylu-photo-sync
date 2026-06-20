@@ -1,5 +1,5 @@
 from PIL import Image
-from ent_exporter.web.thumbnails import get_or_create, THUMB_DIR
+from beneylu_photo_sync.web.thumbnails import get_or_create, THUMB_DIR
 
 
 def _make_image(path, size=(800, 600)):

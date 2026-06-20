@@ -1,4 +1,4 @@
-# src/ent_exporter/client.py
+# src/beneylu_photo_sync/core/client.py
 from __future__ import annotations
 import httpx
 import logging
@@ -6,7 +6,7 @@ from typing import Iterator
 from .errors import AuthError, CaptchaLockedError, MediaResolveError
 from .models import Board, Card, CardAttachment, ResolvedMedia
 
-log = logging.getLogger("ent_exporter.client")
+log = logging.getLogger("beneylu_photo_sync.client")
 
 # The /cards endpoint caps its response to ~10 most recent cards by default and
 # ignores page/offset/cursor params; only `limit` is honored. Request a high

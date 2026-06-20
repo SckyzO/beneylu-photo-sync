@@ -1,8 +1,8 @@
 # tests/test_cardboard_source.py
 import httpx
 import respx
-from ent_exporter.client import BeneyluClient
-from ent_exporter.sources.cardboard import CardboardSource
+from beneylu_photo_sync.core.client import BeneyluClient
+from beneylu_photo_sync.core.sources.cardboard import CardboardSource
 
 BASE = "https://www.ent-ecole.fr"
 

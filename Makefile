@@ -24,8 +24,8 @@ build:
 # Compile the committed cosmos.css from the vendored Tailwind v4 source.
 # Runs the Tailwind v4 CLI in a throwaway Node container (no host Node, no
 # Node at runtime). Re-run only when template classes change; commit the output.
-CSS_SRC = src/ent_exporter/web/assets/cosmos/cosmos.src.css
-CSS_OUT = src/ent_exporter/web/static/cosmos.css
+CSS_SRC = src/beneylu_photo_sync/web/assets/cosmos/cosmos.src.css
+CSS_OUT = src/beneylu_photo_sync/web/static/cosmos.css
 css:
 	docker run --rm -v "$(CURDIR)":/app -w /app node:22-alpine sh -c \
 	  "npm install --no-save --no-package-lock tailwindcss@4 @tailwindcss/cli@4 >/dev/null 2>&1 && \

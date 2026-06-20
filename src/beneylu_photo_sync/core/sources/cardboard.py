@@ -1,4 +1,4 @@
-# src/ent_exporter/sources/cardboard.py
+# src/beneylu_photo_sync/core/sources/cardboard.py
 from __future__ import annotations
 from typing import Iterable
 from .base import Source

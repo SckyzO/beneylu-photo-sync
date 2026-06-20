@@ -1,4 +1,4 @@
-from ent_exporter.web.gallery import scan, safe_resolve
+from beneylu_photo_sync.web.gallery import scan, safe_resolve
 
 
 def _touch(p):

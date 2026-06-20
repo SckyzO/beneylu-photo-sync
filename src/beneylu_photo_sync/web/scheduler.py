@@ -3,7 +3,7 @@ import logging
 import threading
 from typing import Callable
 
-log = logging.getLogger("ent_exporter.web.scheduler")
+log = logging.getLogger("beneylu_photo_sync.web.scheduler")
 
 
 class IntervalScheduler:

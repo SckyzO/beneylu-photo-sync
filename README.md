@@ -1,4 +1,4 @@
-# 📸 ent_exporter
+# 📸 Beneylu Photo Sync
 
 Récupère **automatiquement les photos** que l'école publie sur l'ENT
 [Beneylu School](https://www.ent-ecole.fr) (« le cartable » / les tableaux de la classe),
@@ -11,7 +11,7 @@ et les range sur ton ordinateur ou ton cloud — sans avoir à les télécharger
 
 ```mermaid
 flowchart LR
-    A["👨‍👩‍👧 Ton compte ENT<br/>ent-ecole.fr"] -->|connexion sécurisée| B["⚙️ ent_exporter"]
+    A["👨‍👩‍👧 Ton compte ENT<br/>ent-ecole.fr"] -->|connexion sécurisée| B["⚙️ Beneylu Photo Sync"]
     B -->|lit les tableaux<br/>de la classe| C["🖼️ Photos publiées<br/>par l'école"]
     C -->|télécharge<br/>les nouveautés| D["📁 Tes photos<br/>rangées par date et section"]
 ```
@@ -23,7 +23,7 @@ toi** ; rien n'est envoyé ailleurs que vers l'ENT lui-même.
 ## Installation (Docker)
 
 ```bash
-git clone <repo> && cd ent_exporter
+git clone <repo> && cd beneylu-photo-sync
 cp .env.example .env   # puis renseigne ENT_LOGIN / ENT_PASSWORD
 ```
 
@@ -61,9 +61,9 @@ le réseau, définis `ENT_WEB_PASSWORD` (un avertissement est émis au démarrag
 ### En ligne de commande
 
 ```bash
-docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter login-test   # vérifie la connexion
-docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter list-boards  # liste les tableaux
-docker compose -f runtimes/docker/docker-compose.yml run --rm ent-exporter sync         # télécharge les nouvelles photos
+docker compose -f runtimes/docker/docker-compose.yml run --rm sync login-test   # vérifie la connexion
+docker compose -f runtimes/docker/docker-compose.yml run --rm sync list-boards  # liste les tableaux
+docker compose -f runtimes/docker/docker-compose.yml run --rm sync sync         # télécharge les nouvelles photos
 ```
 
 ## Captures d'écran

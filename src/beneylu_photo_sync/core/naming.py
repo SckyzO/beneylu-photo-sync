@@ -1,4 +1,4 @@
-# src/ent_exporter/naming.py
+# src/beneylu_photo_sync/core/naming.py
 from __future__ import annotations
 import re
 from datetime import datetime

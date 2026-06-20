@@ -1,7 +1,7 @@
 import zipfile
 from pathlib import Path
-from ent_exporter.web.archive import build_zip
-from ent_exporter.web.thumbnails import THUMB_DIR
+from beneylu_photo_sync.web.archive import build_zip
+from beneylu_photo_sync.web.thumbnails import THUMB_DIR
 
 
 def _touch(p: Path, data: bytes = b"x"):
@@ -36,7 +36,7 @@ def test_build_zip_empty_directory_yields_empty_archive(tmp_path):
 
 def test_build_zip_cleans_up_temp_on_failure(tmp_path, monkeypatch):
     import os
-    import ent_exporter.web.archive as archive_mod
+    import beneylu_photo_sync.web.archive as archive_mod
     (tmp_path / "PS" / "2026-06").mkdir(parents=True)
     (tmp_path / "PS" / "2026-06" / "a.jpg").write_bytes(b"x")
 

@@ -1,4 +1,4 @@
-# src/ent_exporter/config.py
+# src/beneylu_photo_sync/core/config.py
 from pathlib import Path
 from typing import Annotated
 from pydantic import SecretStr, Field, field_validator

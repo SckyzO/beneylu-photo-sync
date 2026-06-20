@@ -1,4 +1,4 @@
-# src/ent_exporter/models.py
+# src/beneylu_photo_sync/core/models.py
 from __future__ import annotations
 from datetime import datetime
 from pydantic import BaseModel, Field

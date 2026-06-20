@@ -1,5 +1,5 @@
 # tests/test_config.py
-from ent_exporter.config import Settings
+from beneylu_photo_sync.core.config import Settings
 
 def test_settings_from_env(monkeypatch):
     monkeypatch.setenv("ENT_LOGIN", "parent.test")

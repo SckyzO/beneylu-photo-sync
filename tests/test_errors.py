@@ -1,7 +1,7 @@
 # tests/test_errors.py
-from ent_exporter.errors import EntExporterError, AuthError, CaptchaLockedError, MediaResolveError
+from beneylu_photo_sync.core.errors import BeneyluError, AuthError, CaptchaLockedError, MediaResolveError
 
 def test_error_hierarchy():
-    assert issubclass(AuthError, EntExporterError)
+    assert issubclass(AuthError, BeneyluError)
     assert issubclass(CaptchaLockedError, AuthError)
-    assert issubclass(MediaResolveError, EntExporterError)
+    assert issubclass(MediaResolveError, BeneyluError)

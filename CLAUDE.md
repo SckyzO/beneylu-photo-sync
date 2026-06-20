@@ -1,4 +1,4 @@
-# CLAUDE.md — ent_exporter
+# CLAUDE.md — beneylu_photo_sync
 
 Exporteur automatique des photos publiées par l'école sur **Beneylu School**
 (instance `ent-ecole.fr`). Gros sync initial + sync incrémentale. Self-hostable,
@@ -49,9 +49,9 @@ make build     # construit l'image runtime beneylu-photo-sync:dev
 Application packagée (dans le conteneur runtime) :
 
 ```bash
-ent-exporter login-test      # valide les identifiants
-ent-exporter list-boards     # liste les tableaux du compte
-ent-exporter sync            # synchronise (incrémental)
+beneylu-photo-sync login-test      # valide les identifiants
+beneylu-photo-sync list-boards     # liste les tableaux du compte
+beneylu-photo-sync sync            # synchronise (incrémental)
 ```
 
 ## Conventions

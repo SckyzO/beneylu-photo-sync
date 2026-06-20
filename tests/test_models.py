@@ -1,5 +1,5 @@
 # tests/test_models.py
-from ent_exporter.models import Card, ResolvedMedia, Board
+from beneylu_photo_sync.core.models import Card, ResolvedMedia, Board
 
 def test_card_parses_attachments(fixture):
     cards = [Card.model_validate(c) for c in fixture("cards.json")]

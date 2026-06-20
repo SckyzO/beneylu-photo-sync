@@ -1,13 +1,13 @@
-# src/ent_exporter/cli.py
+# src/beneylu_photo_sync/cli.py
 from __future__ import annotations
 import logging
 import typer
-from .config import Settings
-from .client import BeneyluClient
-from .sources.cardboard import CardboardSource
-from .storage.filesystem import FilesystemStorage
-from .state import StateStore
-from .sync import Synchronizer
+from .core.config import Settings
+from .core.client import BeneyluClient
+from .core.sources.cardboard import CardboardSource
+from .core.storage.filesystem import FilesystemStorage
+from .core.state import StateStore
+from .core.sync import Synchronizer
 
 app = typer.Typer(add_completion=False, help="Export school photos from Beneylu School.")
 

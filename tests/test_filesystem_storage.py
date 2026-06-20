@@ -1,5 +1,5 @@
 # tests/test_filesystem_storage.py
-from ent_exporter.storage.filesystem import FilesystemStorage
+from beneylu_photo_sync.core.storage.filesystem import FilesystemStorage
 
 def test_write_then_exists(tmp_path):
     s = FilesystemStorage(tmp_path)

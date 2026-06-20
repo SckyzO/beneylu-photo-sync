@@ -2,7 +2,7 @@
 import httpx
 import respx
 from typer.testing import CliRunner
-from ent_exporter.cli import app
+from beneylu_photo_sync.cli import app
 
 BASE = "https://www.ent-ecole.fr"
 runner = CliRunner()

@@ -1,9 +1,9 @@
-# src/ent_exporter/sync.py
+# src/beneylu_photo_sync/core/sync.py
 from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from . import naming
-log = logging.getLogger("ent_exporter.sync")
+log = logging.getLogger("beneylu_photo_sync.sync")
 
 @dataclass
 class SyncReport:

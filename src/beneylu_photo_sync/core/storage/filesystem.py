@@ -1,4 +1,4 @@
-# src/ent_exporter/storage/filesystem.py
+# src/beneylu_photo_sync/core/storage/filesystem.py
 from __future__ import annotations
 import shutil
 from pathlib import Path

@@ -2,8 +2,8 @@
 import httpx
 import respx
 import pytest
-from ent_exporter.client import BeneyluClient
-from ent_exporter.errors import AuthError, CaptchaLockedError
+from beneylu_photo_sync.core.client import BeneyluClient
+from beneylu_photo_sync.core.errors import AuthError, CaptchaLockedError
 
 BASE = "https://www.ent-ecole.fr"
 
