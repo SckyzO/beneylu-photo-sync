@@ -41,7 +41,8 @@ def sync():
     storage = FilesystemStorage(settings.data_dir)
     with StateStore(settings.state_db) as state, _client(settings) as c:
         report = Synchronizer(
-            c, [CardboardSource(excluded_boards=settings.excluded_boards)], storage, state
+            c, [CardboardSource(excluded_boards=settings.excluded_boards)], storage, state,
+            workers=settings.sync_workers,
         ).run()
     typer.echo(f"Sync done: downloaded={report.downloaded} skipped={report.skipped} errors={report.errors}")
 

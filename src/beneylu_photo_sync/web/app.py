@@ -34,7 +34,7 @@ def _default_job(store: SettingsStore):
         client.login()
         with StateStore(cfg.state_db) as state, client as c:
             return Synchronizer(c, [CardboardSource(excluded_boards=cfg.excluded_boards)],
-                                storage, state).run()
+                                storage, state, workers=cfg.sync_workers).run()
     return job
 
 

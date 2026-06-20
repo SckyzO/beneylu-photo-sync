@@ -118,6 +118,42 @@ def test_sync_prunes_now_excluded_roots_before_downloading():
     assert "B/2026-06/sans-titre/IMG_1.jpg" in storage.written  # kept board still synced
 
 
+def test_sync_downloads_run_concurrently():
+    # A barrier of size `workers` only releases when that many threads reach it
+    # together: this passes under a bounded pool and would time out if serial.
+    import threading
+    workers = 3
+    barrier = threading.Barrier(workers, timeout=5)
+
+    class BarrierClient(FakeClient):
+        def download(self, url):
+            barrier.wait()
+            yield self.payload
+
+    items = [_item(i) for i in range(1, workers + 1)]
+    report = Synchronizer(BarrierClient(), [FakeSource(items)], FakeStorage(),
+                          FakeState(), workers=workers).run()
+    assert report.downloaded == workers
+
+
+def test_sync_parallel_preserves_all_results_and_isolates_errors():
+    class ExplodingClient(FakeClient):
+        def resolve_media(self, att):
+            if att.media_id == 2:
+                raise RuntimeError("boom")
+            return super().resolve_media(att)
+    items = [_item(i) for i in range(1, 5)]
+    storage, state = FakeStorage(), FakeState()
+    report = Synchronizer(ExplodingClient(), [FakeSource(items)], storage, state,
+                          workers=4).run()
+    assert report.downloaded == 3
+    assert report.errors == 1
+    assert report.error_items == [2]
+    for i in (1, 3, 4):
+        assert f"B/2026-06/sans-titre/IMG_{i}.jpg" in storage.written
+    assert "B/2026-06/sans-titre/IMG_2.jpg" not in storage.written
+
+
 def test_sync_groups_by_publication_month():
     client, storage, state = FakeClient(), FakeStorage(), FakeState()
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()

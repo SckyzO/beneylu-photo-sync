@@ -85,7 +85,10 @@ def test_concurrent_401s_trigger_a_single_refresh():
         ready.wait()           # line both threads up to contend on the lock
         c._refresh_once(gen)
 
-    t1, t2 = threading.Thread(target=worker), threading.Thread(target=worker)
-    t1.start(); t2.start(); t1.join(); t2.join()
+    threads = [threading.Thread(target=worker) for _ in range(2)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
     assert len(refresh_calls) == 1
     assert c._refresh_gen == gen + 1

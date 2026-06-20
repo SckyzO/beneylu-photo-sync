@@ -15,6 +15,7 @@ class WebConfig:
     sync_interval_hours: int
     has_password: bool
     excluded_boards: list[str] = field(default_factory=list)
+    sync_workers: int = 4
 
 
 class SettingsStore:
@@ -63,7 +64,8 @@ class SettingsStore:
             excluded = [s.strip() for s in env_excl.split(",") if s.strip()]
         else:
             excluded = list(data.get("excluded_boards", []))
+        workers = int(os.getenv("ENT_SYNC_WORKERS", "4"))
         return WebConfig(login=login, password=password, data_dir=data_dir,
                          state_db=state_db, base_url=base_url,
                          sync_interval_hours=interval, has_password=bool(password),
-                         excluded_boards=excluded)
+                         excluded_boards=excluded, sync_workers=workers)

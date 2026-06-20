@@ -29,3 +29,11 @@ def test_excluded_boards_defaults_empty(monkeypatch):
     monkeypatch.setenv("ENT_PASSWORD", "y")
     monkeypatch.delenv("ENT_EXCLUDED_BOARDS", raising=False)
     assert Settings().excluded_boards == []
+
+def test_sync_workers_default_and_override(monkeypatch):
+    monkeypatch.setenv("ENT_LOGIN", "x")
+    monkeypatch.setenv("ENT_PASSWORD", "y")
+    monkeypatch.delenv("ENT_SYNC_WORKERS", raising=False)
+    assert Settings().sync_workers == 4
+    monkeypatch.setenv("ENT_SYNC_WORKERS", "8")
+    assert Settings().sync_workers == 8

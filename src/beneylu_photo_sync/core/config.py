@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     data_dir: Path = Field(default=Path("./data"))
     state_db: Path = Field(default=Path("./state.db"))
     request_timeout: float = 30.0
+    # Concurrent download workers (bounded pool); ENT_SYNC_WORKERS to tune.
+    sync_workers: int = 4
     # Boards to skip at sync, e.g. ENT_EXCLUDED_BOARDS="APEIT, Vie de l'école".
     excluded_boards: Annotated[list[str], NoDecode] = []
 
