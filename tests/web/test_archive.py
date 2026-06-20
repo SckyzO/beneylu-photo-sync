@@ -32,3 +32,34 @@ def test_build_zip_empty_directory_yields_empty_archive(tmp_path):
             assert zf.namelist() == []
     finally:
         Path(zip_path).unlink()
+
+
+def test_build_zip_cleans_up_temp_on_failure(tmp_path, monkeypatch):
+    import os
+    import ent_exporter.web.archive as archive_mod
+    (tmp_path / "PS" / "2026-06").mkdir(parents=True)
+    (tmp_path / "PS" / "2026-06" / "a.jpg").write_bytes(b"x")
+
+    created = []
+    real_zipfile = archive_mod.zipfile.ZipFile
+
+    class BoomZip(real_zipfile):
+        def write(self, *a, **k):
+            raise OSError("disk full")
+
+    # Capture the temp path the helper creates, then force the write to blow up.
+    real_named = archive_mod.tempfile.NamedTemporaryFile
+    def tracking_named(*a, **k):
+        f = real_named(*a, **k)
+        created.append(f.name)
+        return f
+    monkeypatch.setattr(archive_mod.tempfile, "NamedTemporaryFile", tracking_named)
+    monkeypatch.setattr(archive_mod.zipfile, "ZipFile", BoomZip)
+
+    import pytest
+    with pytest.raises(OSError):
+        archive_mod.build_zip(tmp_path, tmp_path / "PS")
+
+    # The orphaned temp file must not be left behind.
+    assert created, "expected the helper to create a temp file"
+    assert not os.path.exists(created[0])
