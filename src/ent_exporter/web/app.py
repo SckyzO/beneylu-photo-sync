@@ -32,7 +32,8 @@ def _default_job(store: SettingsStore):
                                password=cfg.password, timeout=30.0)
         client.login()
         with StateStore(cfg.state_db) as state, client as c:
-            return Synchronizer(c, [CardboardSource()], storage, state).run()
+            return Synchronizer(c, [CardboardSource(excluded_boards=cfg.excluded_boards)],
+                                storage, state).run()
     return job
 
 
