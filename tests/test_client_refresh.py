@@ -68,3 +68,24 @@ def test_download_401_without_refresh_token_raises():
     c = _client()
     with pytest.raises(httpx.HTTPStatusError):
         b"".join(c.download("https://s3.example.test/x.jpg"))
+
+
+def test_concurrent_401s_trigger_a_single_refresh():
+    # Under a parallel sync, many in-flight requests can see a 401 at once.
+    # They must collapse to ONE token refresh, not one per thread.
+    import threading
+    c = _client()
+    c.refresh_token = "old"
+    refresh_calls = []
+    c.refresh = lambda: refresh_calls.append(1)  # count, don't hit network
+    gen = c._refresh_gen                          # generation observed at 401 time
+    ready = threading.Barrier(2)
+
+    def worker():
+        ready.wait()           # line both threads up to contend on the lock
+        c._refresh_once(gen)
+
+    t1, t2 = threading.Thread(target=worker), threading.Thread(target=worker)
+    t1.start(); t2.start(); t1.join(); t2.join()
+    assert len(refresh_calls) == 1
+    assert c._refresh_gen == gen + 1
