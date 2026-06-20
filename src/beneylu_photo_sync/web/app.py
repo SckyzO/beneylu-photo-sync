@@ -25,6 +25,23 @@ log = logging.getLogger("beneylu_photo_sync.web.app")
 
 WEB_DIR = Path(__file__).parent
 
+# Words the admin must type to confirm a destructive action.
+WIPE_TOKEN = "SUPPRIMER"
+RESYNC_TOKEN = "RESYNC"
+
+
+def _wipe_library(cfg) -> None:
+    """Delete every downloaded photo (board dirs + thumbnail cache) and clear
+    the sync state, leaving top-level files (state.db, config.json) intact."""
+    storage = FilesystemStorage(cfg.data_dir)
+    root = Path(cfg.data_dir)
+    if root.is_dir():
+        for child in root.iterdir():
+            if child.is_dir():  # board folders + .thumbnails; never the db/config files
+                storage.remove(child.name)
+    with StateStore(cfg.state_db) as state:
+        state.clear()
+
 
 def _default_job(store: SettingsStore):
     def job(on_progress=None):
@@ -141,6 +158,26 @@ def create_app(store: SettingsStore | None = None,
         runner.trigger()
         return RedirectResponse("/", status_code=303)
 
+    @app.post("/admin/wipe")
+    def admin_wipe(confirm: str = Form(""), _=Depends(guard)):
+        # Typed confirmation gate: nothing happens unless the exact word is
+        # submitted, so a stray click can't erase the library.
+        if confirm.strip() != WIPE_TOKEN:
+            return RedirectResponse("/config?danger=wipe", status_code=303)
+        _wipe_library(store.effective())
+        return RedirectResponse("/", status_code=303)
+
+    @app.post("/admin/resync")
+    def admin_resync(confirm: str = Form(""), _=Depends(guard)):
+        # Force a full re-download: wipe first (state + files), else cleared
+        # state with files still on disk would dedup-suffix every photo. Then
+        # kick off a fresh sync.
+        if confirm.strip() != RESYNC_TOKEN:
+            return RedirectResponse("/config?danger=resync", status_code=303)
+        _wipe_library(store.effective())
+        runner.trigger()
+        return RedirectResponse("/", status_code=303)
+
     @app.get("/api/status")
     def status_api(_=Depends(guard)):
         return JSONResponse(dataclasses.asdict(runner.status))
@@ -152,7 +189,8 @@ def create_app(store: SettingsStore | None = None,
             request=request, name="config.html",
             context={"login": cfg.login or "", "has_password": cfg.has_password,
                      "sync_interval_hours": cfg.sync_interval_hours,
-                     "excluded_boards": ", ".join(cfg.excluded_boards)})
+                     "excluded_boards": ", ".join(cfg.excluded_boards),
+                     "danger": request.query_params.get("danger")})
 
     @app.post("/config")
     def config_post(login: str = Form(""), password: str = Form(""),

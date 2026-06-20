@@ -24,6 +24,7 @@ def env(tmp_path, monkeypatch):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setenv("ENT_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("ENT_CONFIG_FILE", str(tmp_path / "config.json"))
+    monkeypatch.setenv("ENT_STATE_DB", str(tmp_path / "state.db"))
     return tmp_path
 
 
@@ -294,3 +295,65 @@ def test_download_thumbnail_dir_is_404(env):
     _touch(env / THUMB_DIR / "x.jpg")
     client, _, _ = _client(env)
     assert client.get(f"/download/{THUMB_DIR}").status_code == 404
+
+
+def test_config_page_has_danger_zone(env):
+    client, _, _ = _client(env)
+    r = client.get("/config")
+    assert r.status_code == 200
+    assert "Zone de danger" in r.text
+    assert 'action="/admin/wipe"' in r.text and 'action="/admin/resync"' in r.text
+    assert "SUPPRIMER" in r.text and "RESYNC" in r.text
+
+
+def test_admin_wipe_requires_typed_confirmation(env):
+    _touch(env / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.post("/admin/wipe", data={"confirm": "nope"}, follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/config?danger=wipe"
+    assert (env / "PS" / "2026-06" / "Sortie" / "a.jpg").exists()  # nothing erased
+
+
+def test_admin_wipe_clears_photos_and_state(env):
+    from beneylu_photo_sync.core.state import StateStore
+    _touch(env / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    _touch(env / ".thumbnails" / "PS" / "2026-06" / "Sortie" / "a.jpg.jpg")
+    st = StateStore(env / "state.db")
+    st.record(1, "b", "c", "PS/2026-06/Sortie/a.jpg", "t")
+    st.close()
+    client, _, _ = _client(env)
+    r = client.post("/admin/wipe", data={"confirm": "SUPPRIMER"}, follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/"
+    assert not (env / "PS").exists()             # board content removed
+    assert not (env / ".thumbnails").exists()    # thumbnail cache removed
+    after = StateStore(env / "state.db")
+    assert after.count() == 0                    # state cleared
+    after.close()
+
+
+def test_admin_resync_requires_confirmation(env):
+    _touch(env / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    client, triggered, _ = _client(env)
+    r = client.post("/admin/resync", data={"confirm": "x"}, follow_redirects=False)
+    assert r.status_code == 303
+    assert not triggered.is_set()                # no sync kicked off
+    assert (env / "PS" / "2026-06" / "Sortie" / "a.jpg").exists()
+
+
+def test_admin_resync_wipes_then_triggers(env):
+    from beneylu_photo_sync.core.state import StateStore
+    _touch(env / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    st = StateStore(env / "state.db")
+    st.record(1, "b", "c", "PS/2026-06/Sortie/a.jpg", "t")
+    st.close()
+    client, triggered, _ = _client(env)
+    r = client.post("/admin/resync", data={"confirm": "RESYNC"}, follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/"
+    assert not (env / "PS").exists()
+    after = StateStore(env / "state.db")
+    assert after.count() == 0
+    after.close()
+    assert triggered.is_set()                    # fresh full sync started

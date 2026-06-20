@@ -32,4 +32,30 @@
       class="rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600">Enregistrer</button>
   </form>
 </div>
+
+<div class="mx-auto mt-6 max-w-md rounded-xl border border-red-300 bg-red-50/60 p-6 dark:border-red-500/30 dark:bg-red-500/[0.06]">
+  <h2 class="mb-1 text-lg font-semibold text-red-700 dark:text-red-300">Zone de danger</h2>
+  <p class="mb-5 text-sm text-red-700/80 dark:text-red-300/70">Actions irréversibles.</p>
+  {% if danger %}
+  <p class="mb-4 rounded-xl bg-red-100 px-3 py-2 text-sm text-red-800 dark:bg-red-500/15 dark:text-red-200">
+    Confirmation incorrecte — aucune action effectuée.
+  </p>
+  {% endif %}
+  <form method="post" action="/admin/resync" class="js-danger mb-6 flex flex-col gap-2" data-confirm="RESYNC">
+    <p class="text-sm font-medium text-gray-800 dark:text-white/90">Forcer une synchronisation complète</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">Supprime les photos et l'état, puis re-télécharge tout depuis l'ENT. Tape <strong>RESYNC</strong> pour confirmer.</p>
+    <input type="text" name="confirm" autocomplete="off" placeholder="RESYNC"
+      class="rounded-xl border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-red-400 focus:outline-none focus:ring-3 focus:ring-red-500/10 dark:border-gray-700">
+    <button type="submit"
+      class="rounded-xl border border-red-300 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10">Forcer la resynchronisation</button>
+  </form>
+  <form method="post" action="/admin/wipe" class="js-danger flex flex-col gap-2" data-confirm="SUPPRIMER">
+    <p class="text-sm font-medium text-gray-800 dark:text-white/90">Tout supprimer</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">Supprime définitivement toutes les photos et l'état. Tape <strong>SUPPRIMER</strong> pour confirmer.</p>
+    <input type="text" name="confirm" autocomplete="off" placeholder="SUPPRIMER"
+      class="rounded-xl border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-red-400 focus:outline-none focus:ring-3 focus:ring-red-500/10 dark:border-gray-700">
+    <button type="submit"
+      class="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40">Tout supprimer</button>
+  </form>
+</div>
 {% endblock %}

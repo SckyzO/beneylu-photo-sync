@@ -53,6 +53,14 @@ class StateStore:
         self._conn.commit()
         return cur.rowcount
 
+    def clear(self) -> int:
+        """Drop every row. Used by the admin 'wipe' / 'force full resync'
+        actions so the next sync re-downloads from scratch. Returns the count
+        removed."""
+        cur = self._conn.execute("DELETE FROM media")
+        self._conn.commit()
+        return cur.rowcount
+
     def count(self) -> int:
         return self._conn.execute("SELECT COUNT(*) FROM media").fetchone()[0]
 

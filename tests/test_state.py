@@ -19,6 +19,17 @@ def test_record_is_idempotent(tmp_path):
     st.record(900000001, "b1", "c1", "b1/a.jpg", "t")  # no exception
     assert st.count() == 1
 
+def test_clear_removes_all_rows(tmp_path):
+    st = StateStore(tmp_path / "state.db")
+    st.record(1, "a", "c", "p1", "t")
+    st.record(2, "a", "c", "p2", "t")
+    assert st.count() == 2
+    assert st.clear() == 2
+    assert st.count() == 0
+    assert st.has(1) is False
+    st.close()
+
+
 def test_path_for_returns_recorded_path_or_none(tmp_path):
     st = StateStore(tmp_path / "state.db")
     assert st.path_for(900000001) is None
