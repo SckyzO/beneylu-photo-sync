@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="mb-6 flex items-center gap-4">
+<section class="mb-6 flex flex-wrap items-center gap-3">
   <form method="post" action="/sync">
     <button type="submit"
       class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
@@ -8,6 +8,12 @@
       Synchroniser maintenant
     </button>
   </form>
+  {% if boards %}
+  <a href="/download"
+     class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
+    ⬇ Tout télécharger
+  </a>
+  {% endif %}
   <span id="status" data-state="{{ status.state }}"
         class="text-sm text-gray-500 dark:text-gray-400">{{ status.state }}</span>
 </section>
@@ -17,17 +23,22 @@
 </p>
 {% endif %}
 {% for board in boards %}
-<h2 class="mb-3 text-xl font-semibold text-gray-800 dark:text-white/90">{{ board.board }}</h2>
+<h2 class="mb-3 mt-2 text-xl font-semibold text-gray-800 dark:text-white/90">{{ board.board }}</h2>
 {% for month in board.months %}
-<h3 class="mb-2 mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">{{ month.month }}</h3>
+<h3 class="sticky top-[68px] z-30 -mx-1 mb-2 mt-4 bg-gray-50/90 px-1 py-1 text-sm font-medium text-gray-500 backdrop-blur dark:bg-gray-900/90 dark:text-gray-400">{{ month.month }}</h3>
 {% for section in month.sections %}
-<div class="mb-4 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-  <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{{ section.section }}</h4>
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+<div class="mb-5 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+  <div class="mb-3 flex items-center gap-2">
+    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ section.section }}</h4>
+    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500 dark:bg-white/[0.06] dark:text-gray-400">{{ section.photos|length }}</span>
+    <a href="/download/{{ board.board }}/{{ month.month }}/{{ section.section }}"
+       class="ml-auto text-xs text-gray-400 hover:text-brand-500">⬇ Télécharger la section</a>
+  </div>
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" data-lightbox-group>
     {% for photo in section.photos %}
-    <a href="/photo/{{ photo.key }}">
+    <a href="/photo/{{ photo.key }}" class="js-photo" data-full="/photo/{{ photo.key }}" data-name="{{ photo.name }}">
       <img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"
-           class="h-40 w-full rounded-xl object-cover">
+           class="aspect-square w-full rounded-xl object-cover transition hover:opacity-90 hover:ring-2 hover:ring-brand-500/40">
     </a>
     {% endfor %}
   </div>

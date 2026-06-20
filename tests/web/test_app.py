@@ -150,6 +150,15 @@ def test_config_post_persists_excluded_boards(env):
     assert "APEIT, Vie de l'école" in page.text
 
 
+def test_gallery_has_section_count_badge_and_download_all(env):
+    _touch(env / "PS" / "2026-06" / "Sortie ferme" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "Tout télécharger" in r.text          # global download button
+    assert 'aspect-square' in r.text             # square tiles redesign
+
+
 def test_password_gate_redirects_to_login(env, monkeypatch):
     monkeypatch.setenv("ENT_WEB_PASSWORD", "letmein")
     store = SettingsStore(env / "config.json")
