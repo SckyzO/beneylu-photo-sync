@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}ent_exporter{% endblock %}</title>
+  <title>{% block title %}Beneylu Photo Sync{% endblock %}</title>
   <script>
     // Apply the persisted theme before first paint (no flash). Dark is default.
     (function () {
@@ -17,16 +17,50 @@
   <link rel="stylesheet" href="/static/cosmos.css">
 </head>
 <body class="min-h-screen bg-gray-50 font-outfit text-gray-800 dark:bg-gray-900 dark:text-white/90">
-  <header class="sticky top-0 z-50 flex items-center gap-4 border-b border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
-    <a href="/" class="text-lg font-bold">📸 ent_exporter</a>
-    <nav class="flex gap-4 text-sm">
-      <a href="/" class="hover:text-brand-500">Galerie</a>
-      <a href="/config" class="hover:text-brand-500">Configuration</a>
-    </nav>
-    <button id="theme-toggle" type="button" aria-label="Basculer le thème"
-      class="ml-auto rounded-lg border border-gray-200 px-3 py-1.5 text-sm dark:border-gray-800">
-      <span class="hidden dark:inline">☀️</span><span class="inline dark:hidden">🌙</span>
-    </button>
+  <header class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
+    <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2.5 sm:px-5">
+      <a href="/" class="flex shrink-0 items-center gap-2 font-bold">
+        <svg class="h-6 w-6 text-brand-500" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9a2 2 0 0 1 2-2h1.5l1-1.5h5l1 1.5H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/>
+          <circle cx="12" cy="13" r="3.5"/>
+        </svg>
+        <span class="hidden whitespace-nowrap text-base sm:inline">Beneylu&nbsp;<span class="text-brand-500">Photo&nbsp;Sync</span></span>
+      </a>
+      <nav class="flex shrink-0 items-center gap-1 rounded-xl bg-gray-100 p-1 text-sm dark:bg-white/[0.04]">
+        <a href="/" {% if request.url.path == "/" %}aria-current="page"{% endif %}
+           class="rounded-lg px-3 py-1.5 font-medium transition {% if request.url.path == '/' %}bg-white text-brand-600 shadow-sm dark:bg-white/10 dark:text-white{% else %}text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white{% endif %}">Galerie</a>
+        <a href="/config" {% if request.url.path == "/config" %}aria-current="page"{% endif %}
+           class="rounded-lg px-3 py-1.5 font-medium transition {% if request.url.path == '/config' %}bg-white text-brand-600 shadow-sm dark:bg-white/10 dark:text-white{% else %}text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white{% endif %}">Config</a>
+      </nav>
+      <div class="flex min-w-0 flex-1 justify-end">
+        {% if request.url.path == "/" %}
+        <div class="relative w-full sm:max-w-xs">
+          <svg class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input id="gallery-search" type="search" autocomplete="off" placeholder="Rechercher…" aria-label="Rechercher dans la galerie"
+                 class="w-full rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-3 text-sm placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/40 dark:border-gray-800 dark:bg-white/[0.03]">
+        </div>
+        {% endif %}
+      </div>
+      <button id="theme-toggle" type="button" aria-label="Basculer le thème"
+        class="shrink-0 rounded-lg border border-gray-200 p-2 dark:border-gray-800">
+        <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+        <svg class="block h-5 w-5 dark:hidden" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
   </header>
   <main class="mx-auto max-w-5xl px-5 py-6">{% block content %}{% endblock %}</main>
   <script src="/static/app.js"></script>

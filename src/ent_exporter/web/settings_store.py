@@ -14,6 +14,7 @@ class WebConfig:
     base_url: str
     sync_interval_hours: int
     has_password: bool
+    excluded_boards: list[str] = field(default_factory=list)
 
 
 class SettingsStore:
@@ -28,7 +29,8 @@ class SettingsStore:
         return json.loads(self.config_file.read_text())
 
     def save(self, *, login: str | None = None, password: str | None = None,
-             sync_interval_hours: int | None = None) -> None:
+             sync_interval_hours: int | None = None,
+             excluded_boards: list[str] | None = None) -> None:
         data = self._read_file()
         if login is not None:
             data["login"] = login
@@ -36,6 +38,8 @@ class SettingsStore:
             data["password"] = password
         if sync_interval_hours is not None:
             data["sync_interval_hours"] = int(sync_interval_hours)
+        if excluded_boards is not None:
+            data["excluded_boards"] = list(excluded_boards)
         self.config_file.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.config_file.with_suffix(".tmp")
         # Create the temp file already restricted to 0o600 so the plaintext
@@ -54,6 +58,12 @@ class SettingsStore:
         base_url = os.getenv("ENT_BASE_URL", "https://www.ent-ecole.fr")
         interval = int(os.getenv("ENT_SYNC_INTERVAL_HOURS",
                                  str(data.get("sync_interval_hours", 0))))
+        env_excl = os.getenv("ENT_EXCLUDED_BOARDS")
+        if env_excl is not None:
+            excluded = [s.strip() for s in env_excl.split(",") if s.strip()]
+        else:
+            excluded = list(data.get("excluded_boards", []))
         return WebConfig(login=login, password=password, data_dir=data_dir,
                          state_db=state_db, base_url=base_url,
-                         sync_interval_hours=interval, has_password=bool(password))
+                         sync_interval_hours=interval, has_password=bool(password),
+                         excluded_boards=excluded)

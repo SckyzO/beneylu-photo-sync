@@ -3,8 +3,6 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from . import naming
-from .exif import capture_date
-
 log = logging.getLogger("ent_exporter.sync")
 
 @dataclass
@@ -39,9 +37,10 @@ class Synchronizer:
             return
         media = self.client.resolve_media(item.attachment)
         data = b"".join(self.client.download(media.url))
-        taken_at = capture_date(data) or item.card.created_at
+        # Group by the card's publication date so a posted section lands in one
+        # month, instead of scattering by per-photo EXIF capture dates.
         key = naming.path_for(item.board.name, item.card.description, media.label,
-                              taken_at, item.media_id, exists=self.storage.exists)
+                              item.card.created_at, item.media_id, exists=self.storage.exists)
         if not self.storage.exists(key):
             self.storage.write(key, iter([data]))
         self.state.record(media_id=item.media_id, board_id=item.board.id,

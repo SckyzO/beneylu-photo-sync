@@ -1,22 +1,6 @@
 # tests/test_sync.py
-from io import BytesIO
-
-from PIL import Image
-
 from ent_exporter.sync import Synchronizer
 from ent_exporter.models import Board, Card, CardAttachment, MediaItem, ResolvedMedia
-
-
-def _jpeg(exif_date: str | None = None) -> bytes:
-    img = Image.new("RGB", (2, 2))
-    buf = BytesIO()
-    if exif_date is None:
-        img.save(buf, format="JPEG")
-    else:
-        exif = Image.Exif()
-        exif.get_ifd(0x8769)[36867] = exif_date  # DateTimeOriginal
-        img.save(buf, format="JPEG", exif=exif)
-    return buf.getvalue()
 
 
 def _item(media_id=1, description=None):
@@ -86,20 +70,9 @@ def test_per_item_error_does_not_abort_run():
     assert report.errors == 1
     assert "B/2026-06/sans-titre/IMG_2.jpg" in storage.written
 
-
-def test_sync_uses_exif_capture_date_for_path():
-    # card.createdAt is June 2026; EXIF DateTimeOriginal is March 2026.
-    client = FakeClient(payload=_jpeg("2026:03:04 11:22:33"))
-    storage, state = FakeStorage(), FakeState()
+def test_sync_groups_by_publication_month():
+    client, storage, state = FakeClient(), FakeStorage(), FakeState()
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
     assert report.downloaded == 1
-    assert "B/2026-03/sans-titre/IMG_1.jpg" in storage.written
-    assert "B/2026-06/sans-titre/IMG_1.jpg" not in storage.written
-
-
-def test_sync_falls_back_to_created_at_without_exif():
-    client = FakeClient(payload=_jpeg(None))
-    storage, state = FakeStorage(), FakeState()
-    report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
-    assert report.downloaded == 1
+    # 2026-06 comes from card.created_at, regardless of any image metadata.
     assert "B/2026-06/sans-titre/IMG_1.jpg" in storage.written

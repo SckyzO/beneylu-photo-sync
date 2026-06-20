@@ -37,3 +37,18 @@ def test_cardboard_skips_non_image_card_with_attachment(fixture):
 
 def test_source_has_name():
     assert CardboardSource().name == "cardboard"
+
+
+@respx.mock
+def test_cardboard_excludes_board_by_substring_case_insensitive(fixture):
+    respx.get(f"{BASE}/api/cardboard/boards").mock(
+        return_value=httpx.Response(200, json=fixture("boards.json")[:1]))
+    client = BeneyluClient(base_url=BASE, login="x", password="y")
+    # boards.json[0].name == "DANS LA CLASSE DES PS"; exclude via lowercase substring.
+    src = CardboardSource(excluded_boards=["dans la classe"])
+    assert list(src.iter_items(client)) == []  # the only board is filtered out
+
+def test_cardboard_default_excludes_nothing():
+    assert CardboardSource().name == "cardboard"
+    assert CardboardSource(excluded_boards=[]) is not None
+    assert CardboardSource(excluded_boards=["  "])._is_excluded("Anything") is False

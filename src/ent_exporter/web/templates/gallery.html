@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="mb-6 flex items-center gap-4">
+<span class="hidden bg-black/90 z-[100] max-h-[90vh] max-w-[90vw] object-contain absolute bottom-4 top-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white/90 text-white/70"></span>
+<section class="mb-6 flex flex-wrap items-center gap-3">
   <form method="post" action="/sync">
     <button type="submit"
       class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
@@ -8,6 +9,12 @@
       Synchroniser maintenant
     </button>
   </form>
+  {% if boards %}
+  <a href="/download"
+     class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
+    ⬇ Tout télécharger
+  </a>
+  {% endif %}
   <span id="status" data-state="{{ status.state }}"
         class="text-sm text-gray-500 dark:text-gray-400">{{ status.state }}</span>
 </section>
@@ -17,24 +24,47 @@
 </p>
 {% endif %}
 {% for board in boards %}
-<h2 class="mb-3 text-xl font-semibold text-gray-800 dark:text-white/90">{{ board.board }}</h2>
-{% for month in board.months %}
-<h3 class="mb-2 mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">{{ month.month }}</h3>
-{% for section in month.sections %}
-<div class="mb-4 rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-  <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{{ section.section }}</h4>
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-    {% for photo in section.photos %}
-    <a href="/photo/{{ photo.key }}">
-      <img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"
-           class="h-40 w-full rounded-xl object-cover">
-    </a>
+<section class="js-board" data-board="{{ board.board|lower }}">
+  <h2 class="mb-3 mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ board.board }}</h2>
+  {% for month in board.months %}
+  <div class="js-month" data-month="{{ month.month }}">
+    <h3 class="sticky top-[69px] z-30 mb-3 mt-5 flex">
+      <span class="rounded-full border border-gray-200 bg-gray-100/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-300">{{ month.month }}</span>
+    </h3>
+    {% for section in month.sections %}
+    <div class="js-section mb-5 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+         data-search="{{ (board.board ~ ' ' ~ month.month ~ ' ' ~ section.section)|lower }}">
+      <div class="flex items-center gap-3 px-5 py-3.5">
+        <h4 class="truncate text-base font-semibold text-gray-800 sm:text-lg dark:text-white/90">{{ section.section }}</h4>
+        <span class="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">{{ section.photos|length }}</span>
+        <a href="/download/{{ board.board }}/{{ month.month }}/{{ section.section }}"
+           aria-label="Télécharger la sélection" title="Télécharger la sélection"
+           class="ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/>
+          </svg>
+        </a>
+      </div>
+      <div class="grid gap-3 border-t border-gray-100 p-5 [grid-template-columns:repeat(auto-fill,minmax(120px,160px))] dark:border-gray-800" data-lightbox-group>
+        {% for photo in section.photos %}
+        <a href="/photo/{{ photo.key }}" class="js-photo" data-full="/photo/{{ photo.key }}" data-name="{{ photo.name }}">
+          <img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"
+               class="aspect-square w-full rounded-xl object-cover transition hover:opacity-90 hover:ring-2 hover:ring-brand-500/40">
+        </a>
+        {% endfor %}
+      </div>
+    </div>
     {% endfor %}
   </div>
-</div>
-{% endfor %}
-{% endfor %}
+  {% endfor %}
+</section>
 {% else %}
 <p class="text-gray-500 dark:text-gray-400">Aucune photo pour l'instant. Lance une synchronisation.</p>
 {% endfor %}
+{% if boards %}
+<p id="search-empty" class="hidden py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+  Aucun résultat pour cette recherche.
+</p>
+{% endif %}
 {% endblock %}
