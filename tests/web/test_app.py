@@ -1,5 +1,7 @@
+import io
 import json
 import threading
+import zipfile
 import pytest
 from fastapi.testclient import TestClient
 from ent_exporter.web.app import create_app
@@ -180,3 +182,36 @@ def test_gallery_thumbnails_carry_lightbox_markers(env):
     assert 'class="js-photo"' in r.text
     assert "data-lightbox-group" in r.text
     assert 'data-full="/photo/PS/2026-06/Sortie ferme/a.jpg"' in r.text
+
+
+def test_download_all_returns_zip(env):
+    _touch(env / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/download")
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "application/zip"
+    with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
+        assert "PS/2026-06/Sortie/a.jpg" in zf.namelist()
+
+
+def test_download_section_subtree(env):
+    _touch(env / "PS" / "2026-06" / "Sortie" / "a.jpg")
+    _touch(env / "PS" / "2026-06" / "Autre" / "b.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/download/PS/2026-06/Sortie")
+    assert r.status_code == 200
+    with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
+        assert zf.namelist() == ["PS/2026-06/Sortie/a.jpg"]
+
+
+def test_download_rejects_traversal_and_unknown(env):
+    client, _, _ = _client(env)
+    assert client.get("/download/../config.json").status_code == 404
+    assert client.get("/download/Nope/2099-01").status_code == 404
+
+
+def test_download_thumbnail_dir_is_404(env):
+    from ent_exporter.web.thumbnails import THUMB_DIR
+    _touch(env / THUMB_DIR / "x.jpg")
+    client, _, _ = _client(env)
+    assert client.get(f"/download/{THUMB_DIR}").status_code == 404

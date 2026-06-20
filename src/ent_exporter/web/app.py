@@ -8,13 +8,14 @@ from fastapi import Depends, FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.background import BackgroundTask
 
 from ..client import BeneyluClient
 from ..sources.cardboard import CardboardSource
 from ..state import StateStore
 from ..storage.filesystem import FilesystemStorage
 from ..sync import Synchronizer
-from . import auth, gallery, thumbnails
+from . import archive, auth, gallery, thumbnails
 from .jobs import SyncRunner
 from .scheduler import IntervalScheduler
 from .settings_store import SettingsStore
@@ -82,6 +83,18 @@ def create_app(store: SettingsStore | None = None,
             raise HTTPException(status_code=404)
         return src
 
+    def _resolve_dir(data_dir, key):
+        # Resolve a gallery sub-tree to a directory under the data root. Reject
+        # traversal and the thumbnail cache; empty key means the whole library.
+        root = Path(data_dir).resolve()
+        candidate = (root / key).resolve() if key else root
+        if not candidate.is_dir() or not candidate.is_relative_to(root):
+            raise HTTPException(status_code=404)
+        rel = candidate.relative_to(root)
+        if thumbnails.THUMB_DIR in rel.parts or candidate.name == thumbnails.THUMB_DIR:
+            raise HTTPException(status_code=404)
+        return root, candidate
+
     @app.get("/thumb/{key:path}")
     def thumb(key: str, _=Depends(guard)):
         cfg = store.effective()
@@ -93,6 +106,25 @@ def create_app(store: SettingsStore | None = None,
         cfg = store.effective()
         src = _resolve_image(cfg.data_dir, key)
         return FileResponse(src)
+
+    @app.get("/download")
+    def download_all(_=Depends(guard)):
+        cfg = store.effective()
+        root, target = _resolve_dir(cfg.data_dir, "")
+        zip_path = archive.build_zip(root, target)
+        return FileResponse(zip_path, media_type="application/zip",
+                            filename="beneylu-photos.zip",
+                            background=BackgroundTask(os.unlink, zip_path))
+
+    @app.get("/download/{key:path}")
+    def download_subtree(key: str, _=Depends(guard)):
+        cfg = store.effective()
+        root, target = _resolve_dir(cfg.data_dir, key)
+        zip_path = archive.build_zip(root, target)
+        name = (target.name or "beneylu-photos") + ".zip"
+        return FileResponse(zip_path, media_type="application/zip",
+                            filename=name,
+                            background=BackgroundTask(os.unlink, zip_path))
 
     @app.post("/sync")
     def sync(_=Depends(guard)):
