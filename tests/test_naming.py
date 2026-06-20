@@ -13,8 +13,16 @@ def test_section_folder_keeps_clean_label():
     assert section_folder("Arts visuels") == "Arts visuels"
     assert section_folder("Maths:quantités") == "Maths_quantités"
 
-def test_section_folder_collapses_whitespace_and_newlines():
-    assert section_folder("ARTS:\nThématiques printemps") == "ARTS_ Thématiques printemps"
+def test_section_folder_keeps_only_first_line():
+    desc = "Écrit\n -Graphisme: échelles\n -Écrire son prénom"
+    assert section_folder(desc) == "Écrit"
+
+def test_section_folder_cuts_at_first_inline_bullet():
+    assert section_folder("Explorer le monde -Entraînement au découpage") == "Explorer le monde"
+
+def test_section_folder_first_line_with_colon():
+    # First line only; the colon is path-sanitized to underscore.
+    assert section_folder("ARTS:\nThématiques printemps") == "ARTS_"
 
 def test_section_folder_blank_or_empty_falls_back():
     assert section_folder(None) == "sans-titre"

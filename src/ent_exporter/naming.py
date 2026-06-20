@@ -7,6 +7,7 @@ from typing import Callable
 
 _UNSAFE = re.compile(r'[/\\:*?"<>|]')
 _WHITESPACE = re.compile(r"\s+")
+_BULLET = re.compile(r"\s[-•]\s?")
 
 SECTION_MAXLEN = 60
 SECTION_FALLBACK = "sans-titre"
@@ -18,15 +19,19 @@ def month_folder(dt: datetime) -> str:
     return f"{dt.year:04d}-{dt.month:02d}"
 
 def section_folder(description: str | None) -> str:
-    """A safe folder name for a card's section, derived from its description.
+    """A safe folder name for a card's section, derived from its title.
 
-    Collapses whitespace/newlines, neutralizes path-unsafe characters (accents
-    kept for readability), truncates to a sane length, and falls back to a
-    constant when the description is empty or reduces to nothing.
+    Beneylu cards store a short title followed by a bulleted activity list. We
+    keep only the title: the text before the first newline, or before the first
+    inline bullet ("- " / "• "). Whitespace is collapsed, path-unsafe characters
+    neutralized (accents kept), the result truncated and trailing punctuation
+    trimmed, with a constant fallback when nothing remains.
     """
     if not description:
         return SECTION_FALLBACK
-    text = _WHITESPACE.sub(" ", description).strip()
+    first = description.replace("\r", "\n").split("\n", 1)[0]
+    first = _BULLET.split(first, maxsplit=1)[0]
+    text = _WHITESPACE.sub(" ", first).strip()
     text = _UNSAFE.sub("_", text)
     text = text[:SECTION_MAXLEN].rstrip(" .")
     return text or SECTION_FALLBACK
