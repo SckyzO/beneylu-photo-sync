@@ -97,12 +97,12 @@
 
     const img = document.createElement("img");
     img.alt = "";
-    img.className = "max-h-[90vh] max-w-[90vw] rounded-lg object-contain";
+    img.className = "max-h-[90vh] max-w-[90vw] rounded-xl object-contain";
 
     const counter = document.createElement("div");
     counter.className = "absolute left-1/2 top-4 -translate-x-1/2 text-sm text-white/70";
     const caption = document.createElement("div");
-    caption.className = "absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white/90";
+    caption.className = "absolute bottom-4 left-1/2 -translate-x-1/2 rounded-xl bg-black/50 px-3 py-1 text-sm text-white/90";
 
     overlay.appendChild(makeBtn("prev", "Précédent", "absolute left-4 top-1/2 -translate-y-1/2 px-4 py-2 text-3xl text-white/80 hover:text-white", "‹"));
     overlay.appendChild(img);

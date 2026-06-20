@@ -98,7 +98,7 @@ def test_login_page_is_cosmos_styled(env, monkeypatch):
     client, _, _ = _client(env)  # rebuilds app with login route mounted
     r = client.get("/login")
     assert r.status_code == 200
-    assert "rounded-2xl" in r.text  # cosmos card present
+    assert "rounded-xl" in r.text  # cosmos card present
     assert 'name="password"' in r.text
 
 
@@ -137,6 +137,23 @@ def test_config_page_centered_with_exclude_field(env):
     assert r.status_code == 200
     assert "mx-auto" in r.text and "max-w-md" in r.text   # centered cosmos card
     assert 'name="excluded_boards"' in r.text             # new field present
+
+
+def test_config_page_has_back_to_gallery_link(env):
+    client, _, _ = _client(env)
+    r = client.get("/config")
+    assert r.status_code == 200
+    assert "Retour à la galerie" in r.text
+    assert 'href="/"' in r.text
+
+
+def test_corner_radius_is_homogeneous(env):
+    # All rounded utilities collapse to a single token across the rendered UI.
+    import re
+    _touch(env / "PS" / "2026-06" / "S" / "a.jpg")
+    client, _, _ = _client(env)
+    radii = set(re.findall(r"rounded-\w+", client.get("/").text + client.get("/config").text))
+    assert radii == {"rounded-xl"}, radii
 
 
 def test_config_post_persists_excluded_boards(env):

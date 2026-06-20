@@ -38,7 +38,7 @@
             <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
           </svg>
           <input id="gallery-search" type="search" autocomplete="off" placeholder="Rechercher une activité, un mois…" aria-label="Rechercher dans la galerie"
-                 class="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-800 dark:bg-white/[0.03] dark:focus:bg-white/[0.06]">
+                 class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-800 dark:bg-white/[0.03] dark:focus:bg-white/[0.06]">
         </div>
       </div>
       {% else %}
@@ -46,7 +46,7 @@
       {% endif %}
       <div class="flex shrink-0 items-center gap-1.5">
         <button id="theme-toggle" type="button" aria-label="Basculer le thème"
-          class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
+          class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
           <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                stroke-linejoin="round" aria-hidden="true">
@@ -61,7 +61,7 @@
         </button>
         <a href="/config" {% if request.url.path == "/config" %}aria-current="page"{% endif %}
            aria-label="Configuration" title="Configuration"
-           class="inline-flex h-9 w-9 items-center justify-center rounded-lg border transition {% if request.url.path == '/config' %}border-brand-500 text-brand-500{% else %}border-gray-200 text-gray-500 hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400{% endif %}">
+           class="inline-flex h-9 w-9 items-center justify-center rounded-xl border transition {% if request.url.path == '/config' %}border-brand-500 text-brand-500{% else %}border-gray-200 text-gray-500 hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400{% endif %}">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3"/>

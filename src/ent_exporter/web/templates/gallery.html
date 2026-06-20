@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-<span class="hidden bg-black/90 z-[100] max-h-[90vh] max-w-[90vw] object-contain absolute bottom-4 top-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white/90 text-white/70"></span>
+<span class="hidden bg-black/90 z-[100] max-h-[90vh] max-w-[90vw] object-contain absolute bottom-4 top-4 left-1/2 -translate-x-1/2 rounded-xl bg-black/50 px-3 py-1 text-sm text-white/90 text-white/70"></span>
 <section class="mb-6 flex flex-wrap items-center gap-3">
   <form method="post" action="/sync">
     <button type="submit"
-      class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+      class="rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
       {% if not configured or status.state == "running" %}disabled{% endif %}>
       Synchroniser maintenant
     </button>
   </form>
   {% if boards %}
   <a href="/download"
-     class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
+     class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
     ⬇ Tout télécharger
   </a>
   {% endif %}
@@ -19,7 +19,7 @@
         class="text-sm text-gray-500 dark:text-gray-400">{{ status.state }}</span>
 </section>
 {% if not configured %}
-<p class="mb-4 rounded-lg bg-amber-100 px-4 py-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
+<p class="mb-4 rounded-xl bg-amber-100 px-4 py-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
   Identifiants ENT manquants — renseigne-les dans <a class="underline" href="/config">Configuration</a>.
 </p>
 {% endif %}
@@ -29,17 +29,17 @@
   {% for month in board.months %}
   <div class="js-month" data-month="{{ month.month }}">
     <h3 class="sticky top-[63px] z-30 mb-3 mt-5 flex">
-      <span class="rounded-full border border-gray-200 bg-gray-100/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-300">{{ month.month }}</span>
+      <span class="rounded-xl border border-gray-200 bg-gray-100/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-300">{{ month.month }}</span>
     </h3>
     {% for section in month.sections %}
-    <div class="js-section mb-5 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    <div class="js-section mb-5 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
          data-search="{{ (board.board ~ ' ' ~ month.month ~ ' ' ~ section.section)|lower }}">
       <div class="flex items-center gap-3 px-5 py-3.5">
         <h4 class="truncate text-base font-semibold text-gray-800 sm:text-lg dark:text-white/90">{{ section.section }}</h4>
-        <span class="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">{{ section.photos|length }}</span>
+        <span class="shrink-0 rounded-xl bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">{{ section.photos|length }}</span>
         <a href="/download/{{ board.board }}/{{ month.month }}/{{ section.section }}"
            aria-label="Télécharger la sélection" title="Télécharger la sélection"
-           class="ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
+           class="ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/>
