@@ -204,6 +204,19 @@ def test_download_section_subtree(env):
         assert zf.namelist() == ["PS/2026-06/Sortie/a.jpg"]
 
 
+def test_download_section_subtree_with_accents_and_spaces(env):
+    # Real board/section names carry spaces and accents; the URL-encoded path
+    # must round-trip through the route back to the on-disk directory.
+    board = "DANS LA CLASSE DES PS"
+    section = "Vie de l'école"
+    _touch(env / board / "2026-06" / section / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get(f"/download/{board}/2026-06/{section}")
+    assert r.status_code == 200
+    with zipfile.ZipFile(io.BytesIO(r.content)) as zf:
+        assert zf.namelist() == [f"{board}/2026-06/{section}/a.jpg"]
+
+
 def test_download_rejects_traversal_and_unknown(env):
     client, _, _ = _client(env)
     assert client.get("/download/../config.json").status_code == 404
