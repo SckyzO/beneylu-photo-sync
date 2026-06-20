@@ -10,6 +10,7 @@ class SyncReport:
     downloaded: int = 0
     skipped: int = 0
     errors: int = 0
+    pruned: int = 0
     error_items: list[int] = field(default_factory=list)
 
 class Synchronizer:
@@ -22,6 +23,14 @@ class Synchronizer:
     def run(self) -> SyncReport:
         report = SyncReport()
         for source in self.sources:
+            # Prune first: drop on-disk content (and its state rows) for boards
+            # the filter now excludes, before downloading what's kept.
+            for prefix in source.obsolete_roots(self.client):
+                removed = self.storage.remove(prefix)
+                forgotten = self.state.forget_prefix(prefix)
+                if removed or forgotten:
+                    log.info("Pruned now-excluded content under %s", prefix)
+                    report.pruned += 1
             for item in source.iter_items(self.client):
                 try:
                     self._handle(item, report)

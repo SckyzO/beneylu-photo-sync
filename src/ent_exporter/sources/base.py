@@ -11,3 +11,9 @@ class Source(ABC):
     @abstractmethod
     def iter_items(self, client: BeneyluClient) -> Iterable[MediaItem]:
         """Yield every downloadable MediaItem this source exposes."""
+
+    def obsolete_roots(self, client: BeneyluClient) -> Iterable[str]:
+        """Top-level storage path prefixes this source no longer owns (e.g.
+        now-excluded boards), to be pruned from storage and state on the next
+        sync. Default: nothing to prune."""
+        return ()

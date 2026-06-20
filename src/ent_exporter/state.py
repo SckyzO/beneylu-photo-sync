@@ -3,6 +3,11 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+def _like_escape(s: str) -> str:
+    # Neutralize LIKE wildcards so a folder name keeps its literal meaning
+    # (sanitized board folders routinely contain "_", which LIKE treats as "?").
+    return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
 class StateStore:
     def __init__(self, db_path: Path | str):
         self._conn = sqlite3.connect(str(db_path))
@@ -30,6 +35,16 @@ class StateStore:
                    card_updated_at=excluded.card_updated_at""",
             (media_id, board_id, card_id, path, card_updated_at))
         self._conn.commit()
+
+    def forget_prefix(self, prefix: str) -> int:
+        """Drop rows whose stored path is, or lives under, prefix. Lets a later
+        un-exclude of a pruned board re-download its photos. Returns the count
+        removed. The "prefix/" guard stops "Board A" matching "Board AB"."""
+        cur = self._conn.execute(
+            "DELETE FROM media WHERE path = ? OR path LIKE ? ESCAPE '\\'",
+            (prefix, _like_escape(prefix) + "/%"))
+        self._conn.commit()
+        return cur.rowcount
 
     def count(self) -> int:
         return self._conn.execute("SELECT COUNT(*) FROM media").fetchone()[0]

@@ -1,5 +1,6 @@
 # src/ent_exporter/storage/filesystem.py
 from __future__ import annotations
+import shutil
 from pathlib import Path
 from typing import Iterable
 from .base import Storage
@@ -13,6 +14,20 @@ class FilesystemStorage(Storage):
 
     def exists(self, key: str) -> bool:
         return self._path(key).is_file()
+
+    def remove(self, key: str) -> bool:
+        root = self.root.resolve()
+        target = (self.root / key).resolve()
+        # Never delete the root itself, never escape it (traversal/empty key).
+        if target == root or root not in target.parents:
+            return False
+        if target.is_dir():
+            shutil.rmtree(target)
+            return True
+        if target.is_file():
+            target.unlink()
+            return True
+        return False
 
     def write(self, key: str, stream: Iterable[bytes]) -> None:
         dest = self._path(key)

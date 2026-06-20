@@ -48,6 +48,18 @@ def test_cardboard_excludes_board_by_substring_case_insensitive(fixture):
     src = CardboardSource(excluded_boards=["dans la classe"])
     assert list(src.iter_items(client)) == []  # the only board is filtered out
 
+@respx.mock
+def test_cardboard_obsolete_roots_lists_excluded_board_folders(fixture):
+    respx.get(f"{BASE}/api/cardboard/boards").mock(
+        return_value=httpx.Response(200, json=fixture("boards.json")[:1]))
+    client = BeneyluClient(base_url=BASE, login="x", password="y")
+    # excluded board -> its on-disk folder name is reported for pruning
+    excluded = CardboardSource(excluded_boards=["dans la classe"])
+    assert list(excluded.obsolete_roots(client)) == ["DANS LA CLASSE DES PS"]
+    # nothing excluded -> nothing to prune
+    assert list(CardboardSource().obsolete_roots(client)) == []
+
+
 def test_cardboard_default_excludes_nothing():
     assert CardboardSource().name == "cardboard"
     assert CardboardSource(excluded_boards=[]) is not None

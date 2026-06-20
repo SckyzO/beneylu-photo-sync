@@ -14,7 +14,7 @@
     <label class="flex flex-col gap-1 text-sm">Tableaux à exclure (séparés par des virgules)
       <input type="text" name="excluded_boards" value="{{ excluded_boards }}" placeholder="APEIT, Vie de l'école"
         class="rounded-lg border border-gray-300 bg-transparent px-3 py-2.5 text-sm focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700">
-      <small class="text-gray-400">Ces tableaux ne seront pas téléchargés lors des synchronisations.</small>
+      <small class="text-gray-400">Non téléchargés ; déjà synchronisés, ils sont <strong>supprimés du disque</strong> à la prochaine synchronisation.</small>
     </label>
     <label class="flex flex-col gap-1 text-sm">Fréquence de synchronisation (heures, 0 = manuel)
       <input type="number" name="sync_interval_hours" min="0" value="{{ sync_interval_hours }}"

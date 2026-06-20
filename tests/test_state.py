@@ -18,3 +18,18 @@ def test_record_is_idempotent(tmp_path):
     st.record(900000001, "b1", "c1", "b1/a.jpg", "t")
     st.record(900000001, "b1", "c1", "b1/a.jpg", "t")  # no exception
     assert st.count() == 1
+
+def test_forget_prefix_drops_matching_rows(tmp_path):
+    st = StateStore(tmp_path / "state.db")
+    st.record(1, "a", "c", "Board A/2026-06/a.jpg", "t")
+    st.record(2, "a", "c", "Board A/2026-05/b.jpg", "t")
+    st.record(3, "b", "c", "Board B/2026-06/c.jpg", "t")
+    # forgetting a board prefix lets a later un-exclude re-download its photos
+    removed = st.forget_prefix("Board A")
+    assert removed == 2
+    assert st.has(1) is False and st.has(2) is False
+    assert st.has(3) is True
+    # "Board A" must not match "Board AB"
+    st.record(4, "ab", "c", "Board AB/x.jpg", "t")
+    assert st.forget_prefix("Board A") == 0
+    assert st.has(4) is True
