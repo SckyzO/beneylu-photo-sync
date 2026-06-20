@@ -168,11 +168,15 @@
     try {
       const r = await fetch("/api/status");
       const s = await r.json();
+      const counts = () => {
+        let c = `${s.downloaded} téléchargées, ${s.skipped} ignorées, ${s.errors} erreurs`;
+        if (s.pruned) c += `, ${s.pruned} élagués`;
+        return c;
+      };
       let label = s.state;
       if (s.state === "error" && s.last_error) label += " — " + s.last_error;
-      else if (s.state === "idle" && s.last_run_at) {
-        label += ` — ${s.downloaded} téléchargées, ${s.skipped} ignorées, ${s.errors} erreurs`;
-      }
+      else if (s.state === "running") label = `Synchronisation… ${counts()}`;
+      else if (s.state === "idle" && s.last_run_at) label += ` — ${counts()}`;
       el.textContent = label;
       el.dataset.state = s.state;
       if (s.state === "running") return setTimeout(poll, 1000);

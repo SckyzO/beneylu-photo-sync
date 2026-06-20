@@ -154,6 +154,14 @@ def test_sync_parallel_preserves_all_results_and_isolates_errors():
     assert "B/2026-06/sans-titre/IMG_2.jpg" not in storage.written
 
 
+def test_run_invokes_progress_callback_per_item():
+    seen = []
+    client, storage, state = FakeClient(), FakeStorage(), FakeState()
+    Synchronizer(client, [FakeSource([_item(1), _item(2)])], storage, state).run(
+        on_progress=lambda rep: seen.append(rep.downloaded))
+    assert seen[-1] == 2  # last callback observes both downloads counted
+
+
 def test_sync_groups_by_publication_month():
     client, storage, state = FakeClient(), FakeStorage(), FakeState()
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()

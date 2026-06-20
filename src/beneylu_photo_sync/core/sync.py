@@ -24,7 +24,10 @@ class Synchronizer:
         self.state = state
         self.workers = max(1, workers)
 
-    def run(self) -> SyncReport:
+    def run(self, on_progress=None) -> SyncReport:
+        """Run the sync. on_progress(report), if given, is called with the live
+        SyncReport after each prune, skip and download so a UI can poll live
+        counters instead of waiting for the final tally."""
         report = SyncReport()
         for source in self.sources:
             # Prune first: drop on-disk content (and its state rows) for boards
@@ -35,15 +38,19 @@ class Synchronizer:
                 if removed or forgotten:
                     log.info("Pruned now-excluded content under %s", prefix)
                     report.pruned += 1
+                    if on_progress:
+                        on_progress(report)
             # Decide what needs fetching on the main thread (single-threaded
             # state/storage reads), then download the rest concurrently.
             pending = []
             for item in source.iter_items(self.client):
                 if self._already_present(item):
                     report.skipped += 1
+                    if on_progress:
+                        on_progress(report)
                 else:
                     pending.append(item)
-            self._download_all(pending, report)
+            self._download_all(pending, report, on_progress)
         return report
 
     def _already_present(self, item) -> bool:
@@ -56,7 +63,7 @@ class Synchronizer:
         log.info("Re-downloading media %s: recorded but missing on disk", item.media_id)
         return False
 
-    def _download_all(self, items, report: SyncReport) -> None:
+    def _download_all(self, items, report: SyncReport, on_progress=None) -> None:
         """Fetch (network) concurrently in a bounded pool; commit (disk + state)
         serially in submission order. Keeping commits serial keeps SQLite on one
         thread and makes the dedup-suffix assignment deterministic. Per-item
@@ -72,6 +79,8 @@ class Synchronizer:
                     log.exception("Failed to sync media %s", item.media_id)
                     report.errors += 1
                     report.error_items.append(item.media_id)
+                if on_progress:
+                    on_progress(report)
 
     def _fetch(self, item):
         media = self.client.resolve_media(item.attachment)

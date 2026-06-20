@@ -27,7 +27,7 @@ WEB_DIR = Path(__file__).parent
 
 
 def _default_job(store: SettingsStore):
-    def job():
+    def job(on_progress=None):
         cfg = store.effective()
         if not cfg.login or not cfg.password:
             raise RuntimeError("identifiants ENT manquants — voir Configuration")
@@ -37,7 +37,7 @@ def _default_job(store: SettingsStore):
         client.login()
         with StateStore(cfg.state_db) as state, client as c:
             return Synchronizer(c, [CardboardSource(excluded_boards=cfg.excluded_boards)],
-                                storage, state, workers=cfg.sync_workers).run()
+                                storage, state, workers=cfg.sync_workers).run(on_progress)
     return job
 
 

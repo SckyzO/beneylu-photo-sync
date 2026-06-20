@@ -16,14 +16,16 @@ class RunStatus:
     downloaded: int = 0
     skipped: int = 0
     errors: int = 0
+    pruned: int = 0
 
 
 class SyncRunner:
     """Runs one sync job at a time in a background thread."""
 
-    def __init__(self, job: Callable[[], object]):
-        # job() performs a full sync and returns an object with
-        # .downloaded / .skipped / .errors (a core SyncReport).
+    def __init__(self, job: Callable[..., object]):
+        # job(on_progress) performs a full sync and returns an object with
+        # .downloaded / .skipped / .errors / .pruned (a core SyncReport). It
+        # may call on_progress(report) during the run to surface live counters.
         self._job = job
         self._lock = threading.Lock()
         self._thread: threading.Thread | None = None
@@ -35,16 +37,24 @@ class SyncRunner:
             return False
         self.status.state = "running"
         self.status.last_error = None
+        self.status.downloaded = self.status.skipped = 0
+        self.status.errors = self.status.pruned = 0
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
         return True
 
+    def _on_progress(self, report) -> None:
+        # Push live counters into status so /api/status reflects progress
+        # mid-run instead of only the final tally.
+        self.status.downloaded = report.downloaded
+        self.status.skipped = report.skipped
+        self.status.errors = report.errors
+        self.status.pruned = report.pruned
+
     def _run(self) -> None:
         try:
-            report = self._job()
-            self.status.downloaded = report.downloaded
-            self.status.skipped = report.skipped
-            self.status.errors = report.errors
+            report = self._job(self._on_progress)
+            self._on_progress(report)
             self.status.state = "idle"
         except Exception as exc:  # surfaced in status, never swallowed
             log.exception("Sync run failed")

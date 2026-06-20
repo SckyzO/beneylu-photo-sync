@@ -10,7 +10,7 @@ from beneylu_photo_sync.web.jobs import SyncRunner
 
 
 class FakeReport:
-    downloaded, skipped, errors = 0, 0, 0
+    downloaded, skipped, errors, pruned = 0, 0, 0, 0
 
 
 def _touch(p):
@@ -30,7 +30,7 @@ def env(tmp_path, monkeypatch):
 def _client(env):
     store = SettingsStore(env / "config.json")
     triggered = threading.Event()
-    runner = SyncRunner(lambda: FakeReport())
+    runner = SyncRunner(lambda on_progress=None: FakeReport())
     runner.trigger = lambda: (triggered.set(), True)[1]  # don't really sync
     app = create_app(store=store, runner=runner)
     return TestClient(app), triggered, store
