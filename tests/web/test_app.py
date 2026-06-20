@@ -171,3 +171,12 @@ def test_password_gate_redirects_to_login(env, monkeypatch):
                      follow_redirects=False)
     assert ok.status_code == 303
     assert client.get("/", follow_redirects=False).status_code == 200
+
+
+def test_gallery_thumbnails_carry_lightbox_markers(env):
+    _touch(env / "PS" / "2026-06" / "Sortie ferme" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert 'class="js-photo"' in r.text
+    assert "data-lightbox-group" in r.text
+    assert 'data-full="/photo/PS/2026-06/Sortie ferme/a.jpg"' in r.text
