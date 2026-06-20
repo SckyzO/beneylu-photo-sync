@@ -129,6 +129,27 @@ def test_branding_uses_name_and_svg_icons(env):
     assert r.text.count("<svg") >= 3             # camera + sun + moon marks
 
 
+def test_config_page_centered_with_exclude_field(env):
+    client, _, _ = _client(env)
+    r = client.get("/config")
+    assert r.status_code == 200
+    assert "mx-auto" in r.text and "max-w-md" in r.text   # centered cosmos card
+    assert 'name="excluded_boards"' in r.text             # new field present
+
+
+def test_config_post_persists_excluded_boards(env):
+    client, _, store = _client(env)
+    r = client.post("/config",
+                    data={"login": "alice", "password": "", "sync_interval_hours": "0",
+                          "excluded_boards": "APEIT, Vie de l'école"},
+                    follow_redirects=False)
+    assert r.status_code == 303
+    assert store.effective().excluded_boards == ["APEIT", "Vie de l'école"]
+    # Pre-filled back into the form on the next GET.
+    page = client.get("/config")
+    assert "APEIT, Vie de l'école" in page.text
+
+
 def test_password_gate_redirects_to_login(env, monkeypatch):
     monkeypatch.setenv("ENT_WEB_PASSWORD", "letmein")
     store = SettingsStore(env / "config.json")

@@ -109,13 +109,16 @@ def create_app(store: SettingsStore | None = None,
         return templates.TemplateResponse(
             request=request, name="config.html",
             context={"login": cfg.login or "", "has_password": cfg.has_password,
-                     "sync_interval_hours": cfg.sync_interval_hours})
+                     "sync_interval_hours": cfg.sync_interval_hours,
+                     "excluded_boards": ", ".join(cfg.excluded_boards)})
 
     @app.post("/config")
     def config_post(login: str = Form(""), password: str = Form(""),
-                    sync_interval_hours: int = Form(0), _=Depends(guard)):
+                    sync_interval_hours: int = Form(0),
+                    excluded_boards: str = Form(""), _=Depends(guard)):
+        excl = [s.strip() for s in excluded_boards.split(",") if s.strip()]
         store.save(login=login or None, password=password or None,
-                   sync_interval_hours=sync_interval_hours)
+                   sync_interval_hours=sync_interval_hours, excluded_boards=excl)
         return RedirectResponse("/config", status_code=303)
 
     if auth.password_required():
