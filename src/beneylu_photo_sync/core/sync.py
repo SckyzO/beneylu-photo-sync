@@ -42,8 +42,12 @@ class Synchronizer:
 
     def _handle(self, item, report: SyncReport) -> None:
         if self.state.has(item.media_id):
-            report.skipped += 1
-            return
+            stored = self.state.path_for(item.media_id)
+            if stored and self.storage.exists(stored):
+                report.skipped += 1
+                return
+            # Recorded but the file is gone from disk: self-heal by re-downloading.
+            log.info("Re-downloading media %s: recorded but missing on disk", item.media_id)
         media = self.client.resolve_media(item.attachment)
         data = b"".join(self.client.download(media.url))
         # Group by the card's publication date so a posted section lands in one

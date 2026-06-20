@@ -27,6 +27,13 @@ class StateStore:
         cur = self._conn.execute("SELECT 1 FROM media WHERE media_id = ?", (media_id,))
         return cur.fetchone() is not None
 
+    def path_for(self, media_id: int) -> str | None:
+        """The on-disk path recorded for media_id, or None if unknown. Lets the
+        synchronizer self-heal a recorded photo whose file was deleted."""
+        row = self._conn.execute(
+            "SELECT path FROM media WHERE media_id = ?", (media_id,)).fetchone()
+        return row[0] if row else None
+
     def record(self, media_id: int, board_id: str, card_id: str, path: str, card_updated_at: str) -> None:
         self._conn.execute(
             """INSERT INTO media (media_id, board_id, card_id, path, card_updated_at)

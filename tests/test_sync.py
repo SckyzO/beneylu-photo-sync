@@ -43,11 +43,18 @@ class FakeStorage:
         return bool(hit)
 
 class FakeState:
-    def __init__(self, known=()):
-        self._known = set(known)
+    def __init__(self, known=None):
+        # known: dict {media_id: recorded_path}, or an iterable of media_ids
+        # (path unknown). Path lets the synchronizer self-heal: a recorded id
+        # whose file is gone from disk must be re-downloaded, not skipped.
+        if isinstance(known, dict):
+            self._paths = dict(known)
+        else:
+            self._paths = {mid: None for mid in (known or ())}
         self.forgotten = []
-    def has(self, mid): return mid in self._known
-    def record(self, **kw): self._known.add(kw["media_id"])
+    def has(self, mid): return mid in self._paths
+    def path_for(self, mid): return self._paths.get(mid)
+    def record(self, **kw): self._paths[kw["media_id"]] = kw["path"]
     def forget_prefix(self, prefix):
         self.forgotten.append(prefix)
         return 0
@@ -66,11 +73,26 @@ def test_sync_groups_photos_by_card_section():
     assert "B/2026-06/Sortie scolaire ferme pédagogique/IMG_1.jpg" in storage.written
 
 def test_sync_skips_known_item():
-    client, storage, state = FakeClient(), FakeStorage(), FakeState(known={1})
+    # Recorded AND present on disk → genuine skip, no network call.
+    path = "B/2026-06/sans-titre/IMG_1.jpg"
+    client, storage, state = FakeClient(), FakeStorage(), FakeState(known={1: path})
+    storage.written[path] = b"already-here"
     report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
     assert report.downloaded == 0
     assert report.skipped == 1
     assert client.downloaded == []
+
+
+def test_sync_redownloads_recorded_but_missing_on_disk():
+    # State remembers media 1 but its file was deleted from disk: self-heal by
+    # re-downloading instead of skipping a now-missing photo forever.
+    path = "B/2026-06/sans-titre/IMG_1.jpg"
+    client, storage, state = FakeClient(), FakeStorage(), FakeState(known={1: path})
+    report = Synchronizer(client, [FakeSource([_item(1)])], storage, state).run()
+    assert report.downloaded == 1
+    assert report.skipped == 0
+    assert client.downloaded == ["https://s3/1.jpg"]
+    assert path in storage.written
 
 def test_per_item_error_does_not_abort_run():
     class ExplodingClient(FakeClient):

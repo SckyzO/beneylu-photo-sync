@@ -19,6 +19,14 @@ def test_record_is_idempotent(tmp_path):
     st.record(900000001, "b1", "c1", "b1/a.jpg", "t")  # no exception
     assert st.count() == 1
 
+def test_path_for_returns_recorded_path_or_none(tmp_path):
+    st = StateStore(tmp_path / "state.db")
+    assert st.path_for(900000001) is None
+    st.record(900000001, "b1", "c1", "B/2026-06/sans-titre/IMG_1.jpg", "t")
+    assert st.path_for(900000001) == "B/2026-06/sans-titre/IMG_1.jpg"
+    st.close()
+
+
 def test_forget_prefix_drops_matching_rows(tmp_path):
     st = StateStore(tmp_path / "state.db")
     st.record(1, "a", "c", "Board A/2026-06/a.jpg", "t")
