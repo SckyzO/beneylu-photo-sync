@@ -119,6 +119,16 @@ def test_base_uses_cosmos_css_and_dark_default(env):
     assert 'id="theme-toggle"' in r.text
 
 
+def test_branding_uses_name_and_svg_icons(env):
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "Beneylu Photo Sync" in r.text       # new display name
+    assert "ent_exporter" not in r.text          # old name gone from the page
+    assert "📸" not in r.text and "☀️" not in r.text and "🌙" not in r.text  # no emoji
+    assert r.text.count("<svg") >= 3             # camera + sun + moon marks
+
+
 def test_password_gate_redirects_to_login(env, monkeypatch):
     monkeypatch.setenv("ENT_WEB_PASSWORD", "letmein")
     store = SettingsStore(env / "config.json")
