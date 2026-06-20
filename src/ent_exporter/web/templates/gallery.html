@@ -28,7 +28,7 @@
   <h2 class="mb-3 mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ board.board }}</h2>
   {% for month in board.months %}
   <div class="js-month" data-month="{{ month.month }}">
-    <h3 class="sticky top-[69px] z-30 mb-3 mt-5 flex">
+    <h3 class="sticky top-[63px] z-30 mb-3 mt-5 flex">
       <span class="rounded-full border border-gray-200 bg-gray-100/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-300">{{ month.month }}</span>
     </h3>
     {% for section in month.sections %}
