@@ -1,9 +1,17 @@
 # src/ent_exporter/client.py
 from __future__ import annotations
 import httpx
+import logging
 from typing import Iterator
 from .errors import AuthError, CaptchaLockedError, MediaResolveError
 from .models import Board, Card, CardAttachment, ResolvedMedia
+
+log = logging.getLogger("ent_exporter.client")
+
+# The /cards endpoint caps its response to ~10 most recent cards by default and
+# ignores page/offset/cursor params; only `limit` is honored. Request a high
+# limit to retrieve a board's full history in one call.
+CARDS_PAGE_LIMIT = 2000
 
 
 class BeneyluClient:
@@ -56,9 +64,16 @@ class BeneyluClient:
         return [b for b in boards if not b.archived and not b.is_hidden]
 
     def cards(self, board_id: str) -> list[Card]:
-        resp = self._request("GET", f"/api/cardboard/boards/{board_id}/cards")
+        resp = self._request("GET", f"/api/cardboard/boards/{board_id}/cards",
+                             params={"limit": CARDS_PAGE_LIMIT})
         resp.raise_for_status()
-        return [Card.model_validate(c) for c in resp.json()]
+        data = resp.json()
+        if len(data) >= CARDS_PAGE_LIMIT:
+            # We hit our own ceiling — there may be even older cards we did not
+            # fetch. Surface it loudly rather than silently dropping history.
+            log.warning("cards(%s): received %d cards (>= limit %d); some older "
+                        "cards may be missing", board_id, len(data), CARDS_PAGE_LIMIT)
+        return [Card.model_validate(c) for c in data]
 
     def resolve_media(self, att: CardAttachment) -> ResolvedMedia:
         params = {"mediaId": att.media_id, "entityId": att.entity_id,

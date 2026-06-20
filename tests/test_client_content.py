@@ -41,3 +41,28 @@ def test_download_streams_bytes():
         return_value=httpx.Response(200, content=b"\xff\xd8\xffDATA"))
     chunks = b"".join(_client().download("https://s3.example.test/x.jpg"))
     assert chunks == b"\xff\xd8\xffDATA"
+
+
+@respx.mock
+def test_cards_requests_high_limit_to_fetch_all(fixture):
+    captured = {}
+    def responder(request):
+        captured["limit"] = request.url.params.get("limit")
+        return httpx.Response(200, json=fixture("cards.json"))
+    respx.get(f"{BASE}/api/cardboard/boards/b1/cards").mock(side_effect=responder)
+    client = BeneyluClient(base_url=BASE, login="x", password="y")
+    cards = client.cards("b1")
+    assert captured["limit"] is not None and int(captured["limit"]) >= 1000
+    assert len(cards) == len(fixture("cards.json"))
+
+
+@respx.mock
+def test_cards_warns_when_limit_saturated(fixture, monkeypatch, caplog):
+    import ent_exporter.client as client_mod
+    monkeypatch.setattr(client_mod, "CARDS_PAGE_LIMIT", 2)  # fixture has 2 cards -> saturates
+    respx.get(f"{BASE}/api/cardboard/boards/b1/cards").mock(
+        return_value=httpx.Response(200, json=fixture("cards.json")))
+    client = BeneyluClient(base_url=BASE, login="x", password="y")
+    with caplog.at_level("WARNING"):
+        client.cards("b1")
+    assert any("may be missing" in r.message for r in caplog.records)
