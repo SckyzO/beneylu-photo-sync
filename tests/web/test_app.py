@@ -161,6 +161,35 @@ def test_gallery_has_section_count_badge_and_download_all(env):
     assert 'aspect-square' in r.text             # square tiles redesign
 
 
+def test_gallery_has_search_input_and_per_section_index(env):
+    _touch(env / "PS" / "2026-06" / "Sortie ferme" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert 'id="gallery-search"' in r.text                 # toolbar search box
+    assert "data-search=" in r.text                        # per-section filter index
+    # the index is lowercased board/month/section text
+    assert "ps 2026-06 sortie ferme" in r.text
+
+
+def test_section_download_is_icon_button_with_tooltip(env):
+    _touch(env / "PS" / "2026-06" / "Sortie ferme" / "a.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    # icon-only download affordance with an accessible label/tooltip
+    assert 'aria-label="Télécharger la sélection"' in r.text
+    assert 'title="Télécharger la sélection"' in r.text
+
+
+def test_header_nav_marks_active_route(env):
+    client, _, _ = _client(env)
+    gallery = client.get("/")
+    assert 'href="/" aria-current="page"' in gallery.text          # gallery active
+    config = client.get("/config")
+    assert 'href="/config" aria-current="page"' in config.text     # config active
+
+
 def test_password_gate_redirects_to_login(env, monkeypatch):
     monkeypatch.setenv("ENT_WEB_PASSWORD", "letmein")
     store = SettingsStore(env / "config.json")
