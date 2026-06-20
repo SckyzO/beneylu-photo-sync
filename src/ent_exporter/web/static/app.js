@@ -8,17 +8,24 @@
     });
   }
 
-  // Gallery search: live client-side filter over sections by board/month/section
-  // title. Hides empty months and boards, shows an empty-state when nothing matches.
+  // Gallery view: progressive reveal (infinite scroll) + live accent-insensitive
+  // search. All sections are server-rendered so search sees everything; we reveal
+  // them in batches as the user scrolls (a spinner shows while more remain), and a
+  // search query bypasses batching to show every match at once.
   (function () {
-    const input = document.getElementById("gallery-search");
-    if (!input) return;
     const sections = Array.prototype.slice.call(document.querySelectorAll(".js-section"));
+    if (!sections.length) return;
     const months = Array.prototype.slice.call(document.querySelectorAll(".js-month"));
     const boards = Array.prototype.slice.call(document.querySelectorAll(".js-board"));
+    const input = document.getElementById("gallery-search");
     const empty = document.getElementById("search-empty");
+    const sentinel = document.getElementById("scroll-sentinel");
 
-    // Accent-insensitive: "mathemat" must match "En mathématiques".
+    const BATCH = 6;
+    let revealed = Math.min(BATCH, sections.length);
+    let query = "";
+
+    // Accent-insensitive: "mathemat" must match "En mathematiques".
     function norm(s) {
       return (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }
@@ -27,13 +34,14 @@
         .call(parent.querySelectorAll(selector))
         .some(function (n) { return !n.classList.contains("hidden"); });
     }
-    function apply() {
-      const q = norm(input.value.trim());
-      let anySection = false;
-      sections.forEach(function (s) {
-        const hit = !q || norm(s.getAttribute("data-search")).indexOf(q) !== -1;
-        s.classList.toggle("hidden", !hit);
-        if (hit) anySection = true;
+    function recompute() {
+      const searching = query.length > 0;
+      let matches = 0;
+      sections.forEach(function (s, i) {
+        const hit = !searching || norm(s.getAttribute("data-search")).indexOf(query) !== -1;
+        if (hit) matches++;
+        // when searching, show every match; otherwise only the revealed batch
+        s.classList.toggle("hidden", !(hit && (searching || i < revealed)));
       });
       months.forEach(function (m) {
         m.classList.toggle("hidden", !visibleChild(m, ".js-section"));
@@ -41,9 +49,32 @@
       boards.forEach(function (b) {
         b.classList.toggle("hidden", !visibleChild(b, ".js-section"));
       });
-      if (empty) empty.classList.toggle("hidden", anySection);
+      if (empty) empty.classList.toggle("hidden", !searching || matches > 0);
+      if (sentinel) {
+        const more = !searching && revealed < sections.length;
+        sentinel.classList.toggle("hidden", !more);
+        sentinel.classList.toggle("flex", more);
+      }
     }
-    input.addEventListener("input", apply);
+
+    if (input) {
+      input.addEventListener("input", function () {
+        query = norm(input.value.trim());
+        recompute();
+      });
+    }
+    if (sentinel && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && !query && revealed < sections.length) {
+          revealed = Math.min(revealed + BATCH, sections.length);
+          recompute();
+        }
+      }, { rootMargin: "400px" });
+      io.observe(sentinel);
+    } else {
+      revealed = sections.length;  // no IntersectionObserver: reveal everything
+    }
+    recompute();
   })();
 
   // Lightbox: intercept thumbnail clicks, show an in-page overlay with prev/next.

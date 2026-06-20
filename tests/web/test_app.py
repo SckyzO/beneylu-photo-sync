@@ -182,6 +182,16 @@ def test_section_download_is_icon_button_with_tooltip(env):
     assert 'title="Télécharger la sélection"' in r.text
 
 
+def test_gallery_has_progressive_scroll_sentinel(env):
+    _touch(env / "PS" / "2026-06" / "S1" / "a.jpg")
+    _touch(env / "PS" / "2026-06" / "S2" / "b.jpg")
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert 'id="scroll-sentinel"' in r.text          # infinite-scroll trigger + loader
+    assert "animate-spin" in r.text                  # spinner present
+
+
 def test_header_nav_marks_active_route(env):
     client, _, _ = _client(env)
     gallery = client.get("/")
