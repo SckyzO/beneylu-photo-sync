@@ -38,3 +38,22 @@ def test_env_overrides_file(tmp_path, monkeypatch):
     eff = store.effective()
     assert eff.login == "env-user"
     assert eff.password == "env-pw"
+
+
+def test_excluded_boards_roundtrip(tmp_path, monkeypatch):
+    monkeypatch.delenv("ENT_EXCLUDED_BOARDS", raising=False)
+    store = SettingsStore(tmp_path / "config.json")
+    store.save(login="a", password="p", excluded_boards=["APEIT", "Foo"])
+    assert store.effective().excluded_boards == ["APEIT", "Foo"]
+
+def test_excluded_boards_env_overrides_file(tmp_path, monkeypatch):
+    store = SettingsStore(tmp_path / "config.json")
+    store.save(login="a", password="p", excluded_boards=["FromFile"])
+    monkeypatch.setenv("ENT_EXCLUDED_BOARDS", "EnvA, EnvB")
+    assert store.effective().excluded_boards == ["EnvA", "EnvB"]
+
+def test_excluded_boards_default_empty(tmp_path, monkeypatch):
+    monkeypatch.delenv("ENT_EXCLUDED_BOARDS", raising=False)
+    store = SettingsStore(tmp_path / "config.json")
+    store.save(login="a", password="p")
+    assert store.effective().excluded_boards == []
