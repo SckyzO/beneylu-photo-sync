@@ -15,7 +15,7 @@
           </button>
         </form>
         <button type="button" id="sync-menu-btn" aria-label="Autres options de synchronisation"
-          aria-haspopup="true" aria-expanded="false"
+          data-tip="Plus d'options" aria-haspopup="true" aria-expanded="false"
           class="border-l border-white/25 bg-brand-500 px-2.5 py-2.5 text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
           {% if sync_disabled %}disabled{% endif %}>
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -140,7 +140,7 @@
         <h4 class="truncate text-base font-semibold text-gray-800 sm:text-lg dark:text-white/90">{{ section.section }}</h4>
         <span class="shrink-0 rounded-xl bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">{{ section.photos|length }}</span>
         <a href="/download/{{ board.board }}/{{ month.month }}/{{ section.section }}"
-           aria-label="Télécharger la sélection" title="Télécharger la sélection"
+           aria-label="Télécharger la sélection" data-tip="Télécharger la sélection"
            class="ml-auto inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

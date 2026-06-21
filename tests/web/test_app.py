@@ -205,9 +205,9 @@ def test_section_download_is_icon_button_with_tooltip(env):
     client, _, _ = _client(env)
     r = client.get("/")
     assert r.status_code == 200
-    # icon-only download affordance with an accessible label/tooltip
+    # icon-only download affordance with an accessible label + designed tooltip
     assert 'aria-label="Télécharger la sélection"' in r.text
-    assert 'title="Télécharger la sélection"' in r.text
+    assert 'data-tip="Télécharger la sélection"' in r.text
 
 
 def test_gallery_has_progressive_scroll_sentinel(env):

@@ -86,6 +86,7 @@
       const b = document.createElement("button");
       b.setAttribute("data-lb", lb);
       b.setAttribute("aria-label", label);
+      b.setAttribute("data-tip", label);
       b.className = cls;
       b.innerHTML = svg;  // static icon markup, no untrusted data
       return b;
@@ -114,7 +115,7 @@
     const download = document.createElement("a");
     download.id = "lb-download";
     download.setAttribute("aria-label", "Télécharger la photo");
-    download.setAttribute("title", "Télécharger la photo");
+    download.setAttribute("data-tip", "Télécharger la photo");
     download.className = "lb-ctrl lb-corner lb-dl";
     download.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>';
 
@@ -223,7 +224,8 @@
     }
     titleEl.textContent = title;
     detailEl.textContent = detail;
-    detailEl.title = tip;
+    if (tip) detailEl.setAttribute("data-tip", tip);
+    else detailEl.removeAttribute("data-tip");
     setSpinner(s.state === "running");
   }
   function fromDom() {
@@ -363,4 +365,47 @@
     document.documentElement.classList.toggle("dyslexic", cb.checked);
     try { localStorage.dyslexic = cb.checked ? "1" : "0"; } catch (e) {}
   });
+})();
+
+// Designed tooltips: one floating bubble, positioned from any [data-tip] element
+// (event-delegated so JS-built controls like the lightbox get them too). Flips
+// above when there's no room below, and clamps to the viewport edges.
+(function () {
+  const tip = document.createElement("div");
+  tip.className = "tooltip";
+  tip.setAttribute("role", "tooltip");
+  document.body.appendChild(tip);
+  let current = null;
+
+  function show(el) {
+    const text = el.getAttribute("data-tip");
+    if (!text) return;
+    current = el;
+    tip.textContent = text;
+    const t = tip.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    let top = r.bottom + 8;
+    if (top + t.height > window.innerHeight - 8) top = r.top - t.height - 8;
+    let left = r.left + r.width / 2 - t.width / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - t.width - 8));
+    tip.style.top = Math.round(top) + "px";
+    tip.style.left = Math.round(left) + "px";
+    tip.classList.add("tooltip-visible");
+  }
+  function hide() { current = null; tip.classList.remove("tooltip-visible"); }
+
+  document.addEventListener("mouseover", function (e) {
+    const el = e.target.closest && e.target.closest("[data-tip]");
+    if (el && el !== current) show(el);
+  });
+  document.addEventListener("mouseout", function (e) {
+    const el = e.target.closest && e.target.closest("[data-tip]");
+    if (el && (!e.relatedTarget || !el.contains(e.relatedTarget))) hide();
+  });
+  document.addEventListener("focusin", function (e) {
+    const el = e.target.closest && e.target.closest("[data-tip]");
+    if (el) show(el); else hide();
+  });
+  document.addEventListener("focusout", hide);
+  window.addEventListener("scroll", hide, true);
 })();

@@ -48,7 +48,7 @@
       <div class="flex-1"></div>
       {% endif %}
       <div class="flex shrink-0 items-center gap-1.5">
-        <button id="theme-toggle" type="button" aria-label="Basculer le thème"
+        <button id="theme-toggle" type="button" aria-label="Basculer le thème" data-tip="Changer de thème"
           class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400">
           <svg class="hidden h-5 w-5 dark:block" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
@@ -63,7 +63,7 @@
           </svg>
         </button>
         <a href="/config" {% if request.url.path == "/config" %}aria-current="page"{% endif %}
-           aria-label="Configuration" title="Configuration"
+           aria-label="Configuration" data-tip="Configuration"
            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border transition {% if request.url.path == '/config' %}border-brand-500 text-brand-500{% else %}border-gray-200 text-gray-500 hover:border-brand-500 hover:text-brand-500 dark:border-gray-800 dark:text-gray-400{% endif %}">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

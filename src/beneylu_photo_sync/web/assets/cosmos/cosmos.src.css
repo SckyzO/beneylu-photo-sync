@@ -70,3 +70,23 @@ html.dyslexic body {
 .lb-next { right: 1rem; }
 .lb-dl { left: 1rem; }
 .lb-close { right: 1rem; }
+
+/* Designed tooltip — a single floating bubble positioned by JS from any
+   [data-tip] element, replacing the native browser title tooltip. */
+.tooltip {
+  position: fixed;
+  z-index: 200;
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.5rem;
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  max-width: 16rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+.tooltip-visible { opacity: 1; transform: translateY(0); }
