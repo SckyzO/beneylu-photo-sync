@@ -98,8 +98,22 @@ est émis au démarrage dans ce cas).
 
 ## Sous le capot
 
-Le cœur (`core/`) ne dépend d'aucun runtime ; l'UI web et les conteneurs se posent
-par-dessus.
+Le cœur (`core/`) ne dépend d'aucun runtime ; l'UI web et la ligne de commande se posent
+par-dessus, et les conteneurs empaquettent l'ensemble.
+
+```mermaid
+flowchart TD
+    web["web/ · galerie FastAPI"] --> core
+    cli["cli.py · login-test / sync"] --> core
+    subgraph core["core/ (indépendant du runtime)"]
+        sync["sync.py"] --> client["client.py · API ENT"]
+        sync --> sources["sources/"]
+        sync --> storage["storage/"]
+        sync --> state["state.py · SQLite"]
+    end
+    docker["runtimes/docker"] -. empaquette .-> web
+    docker -. empaquette .-> cli
+```
 
 ```
 src/beneylu_photo_sync/
