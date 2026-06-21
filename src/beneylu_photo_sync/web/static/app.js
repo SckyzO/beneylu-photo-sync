@@ -249,6 +249,71 @@
   });
 })();
 
+// Board picker: fetch the live board list and let the user choose which boards
+// to sync. Unchecked boards are posted as exclusions, then a sync is triggered.
+(function () {
+  const modal = document.getElementById("modal-boards");
+  if (!modal) return;
+  const list = document.getElementById("boards-list");
+  const loading = document.getElementById("boards-loading");
+  const error = document.getElementById("boards-error");
+  const form = document.getElementById("boards-form");
+  const submit = document.getElementById("boards-submit");
+  const menu = document.getElementById("sync-menu");
+
+  function showError(msg) {
+    error.textContent = msg; error.classList.remove("hidden");
+    loading.classList.add("hidden");
+  }
+  async function load() {
+    list.classList.add("hidden"); list.innerHTML = "";
+    error.classList.add("hidden");
+    loading.classList.remove("hidden");
+    submit.disabled = true;
+    try {
+      const r = await fetch("/api/boards");
+      const data = await r.json();
+      if (!r.ok) return showError(data.error || "Erreur lors du chargement.");
+      if (!data.boards || !data.boards.length) return showError("Aucun tableau trouvé sur le compte.");
+      data.boards.forEach(function (b) {
+        const label = document.createElement("label");
+        label.className = "flex items-center gap-3 rounded-xl px-2 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "js-board-cb h-4 w-4 accent-brand-500";
+        cb.value = b.name; cb.checked = b.included;
+        const span = document.createElement("span");
+        span.className = "text-gray-800 dark:text-gray-100";
+        span.textContent = b.name;
+        label.appendChild(cb); label.appendChild(span);
+        list.appendChild(label);
+      });
+      loading.classList.add("hidden");
+      list.classList.remove("hidden");
+      submit.disabled = false;
+    } catch (e) { showError("Connexion impossible."); }
+  }
+  function open() {
+    if (menu) menu.classList.add("hidden");
+    modal.classList.remove("hidden"); modal.classList.add("flex");
+    load();
+  }
+  form.addEventListener("submit", function () {
+    // Post the UNCHECKED boards as exclusions (checkboxes carry no name, so we
+    // add hidden excluded[] inputs for the ones the user turned off).
+    list.querySelectorAll(".js-board-cb").forEach(function (cb) {
+      if (!cb.checked) {
+        const h = document.createElement("input");
+        h.type = "hidden"; h.name = "excluded"; h.value = cb.value;
+        form.appendChild(h);
+      }
+    });
+  });
+  document.querySelectorAll("[data-open-boards]").forEach(function (b) {
+    b.addEventListener("click", open);
+  });
+})();
+
 // Danger-zone forms: keep the destructive button disabled until the exact
 // confirmation word is typed, and ask once more on submit. The server enforces
 // the same typed gate regardless; this is just a guard rail.

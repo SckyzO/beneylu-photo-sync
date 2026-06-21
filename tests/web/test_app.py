@@ -28,12 +28,12 @@ def env(tmp_path, monkeypatch):
     return tmp_path
 
 
-def _client(env):
+def _client(env, boards_provider=None):
     store = SettingsStore(env / "config.json")
     triggered = threading.Event()
     runner = SyncRunner(lambda on_progress=None: FakeReport())
     runner.trigger = lambda: (triggered.set(), True)[1]  # don't really sync
-    app = create_app(store=store, runner=runner)
+    app = create_app(store=store, runner=runner, boards_provider=boards_provider)
     return TestClient(app), triggered, store
 
 
@@ -367,3 +367,40 @@ def test_admin_resync_wipes_then_triggers(env):
     assert after.count() == 0
     after.close()
     assert triggered.is_set()                    # fresh full sync started
+
+
+def test_api_boards_flags_excluded(env):
+    client, _, store = _client(env, boards_provider=lambda: ["Classe PS", "APEIT", "Vie de l'école"])
+    store.save(login="alice", password="pw", excluded_boards=["APEIT"])
+    r = client.get("/api/boards")
+    assert r.status_code == 200
+    boards = {b["name"]: b["included"] for b in r.json()["boards"]}
+    assert boards == {"Classe PS": True, "APEIT": False, "Vie de l'école": True}
+
+
+def test_api_boards_requires_credentials(env):
+    client, _, _ = _client(env, boards_provider=lambda: ["X"])
+    r = client.get("/api/boards")
+    assert r.status_code == 400
+    assert "error" in r.json()
+
+
+def test_api_boards_handles_listing_failure(env):
+    def boom():
+        raise RuntimeError("ENT down")
+    client, _, store = _client(env, boards_provider=boom)
+    store.save(login="alice", password="pw")
+    r = client.get("/api/boards")
+    assert r.status_code == 502
+    assert "error" in r.json()
+
+
+def test_admin_boards_persists_exclusions_and_triggers(env):
+    client, triggered, store = _client(env, boards_provider=lambda: ["A", "B"])
+    store.save(login="alice", password="pw")
+    r = client.post("/admin/boards", data={"excluded": ["APEIT", "Vie de l'école"]},
+                    follow_redirects=False)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/"
+    assert store.effective().excluded_boards == ["APEIT", "Vie de l'école"]
+    assert triggered.is_set()

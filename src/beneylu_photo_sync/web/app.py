@@ -2,6 +2,7 @@ from __future__ import annotations
 import dataclasses
 import logging
 import os
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -28,6 +29,10 @@ WEB_DIR = Path(__file__).parent
 # Words the admin must type to confirm a destructive action.
 WIPE_TOKEN = "SUPPRIMER"
 RESYNC_TOKEN = "RESYNC"
+
+# Cache the live board list briefly so re-opening the picker doesn't re-login
+# to the ENT every time (a login costs a few seconds).
+BOARDS_TTL = 300.0
 
 
 def _wipe_library(cfg) -> None:
@@ -58,14 +63,30 @@ def _default_job(store: SettingsStore):
     return job
 
 
+def _default_boards_provider(store: SettingsStore):
+    """Live list of board names from the ENT, for the sync picker."""
+    def provider() -> list[str]:
+        cfg = store.effective()
+        client = BeneyluClient(base_url=cfg.base_url, login=cfg.login,
+                               password=cfg.password, timeout=30.0)
+        client.login()
+        with client as c:
+            return [b.name for b in c.boards()]
+    return provider
+
+
 def create_app(store: SettingsStore | None = None,
-               runner: SyncRunner | None = None) -> FastAPI:
+               runner: SyncRunner | None = None,
+               boards_provider=None) -> FastAPI:
     if store is None:
         default_cfg = os.getenv("ENT_CONFIG_FILE") or str(
             Path(os.getenv("ENT_DATA_DIR", "./data")) / "config.json")
         store = SettingsStore(default_cfg)
     if runner is None:
         runner = SyncRunner(_default_job(store))
+    if boards_provider is None:
+        boards_provider = _default_boards_provider(store)
+    boards_cache: dict = {"at": 0.0, "names": None}
 
     templates = Jinja2Templates(directory=str(WEB_DIR / "templates"))
 
@@ -175,6 +196,37 @@ def create_app(store: SettingsStore | None = None,
         if confirm.strip() != RESYNC_TOKEN:
             return RedirectResponse("/config?danger=resync", status_code=303)
         _wipe_library(store.effective())
+        runner.trigger()
+        return RedirectResponse("/", status_code=303)
+
+    @app.get("/api/boards")
+    def api_boards(_=Depends(guard)):
+        # Live boards for the sync picker, each flagged included/excluded per the
+        # saved exclusions. Cached briefly; network/auth failures degrade to a
+        # JSON error the modal can show instead of a 500.
+        cfg = store.effective()
+        if not cfg.login or not cfg.password:
+            return JSONResponse({"error": "Identifiants ENT manquants."}, status_code=400)
+        now = time.monotonic()
+        if boards_cache["names"] is None or now - boards_cache["at"] > BOARDS_TTL:
+            try:
+                boards_cache["names"] = list(boards_provider())
+                boards_cache["at"] = now
+            except Exception:
+                log.warning("Listing boards failed", exc_info=True)
+                return JSONResponse(
+                    {"error": "Impossible de lister les tableaux (connexion ENT ?)."},
+                    status_code=502)
+        terms = [e.casefold() for e in cfg.excluded_boards]
+        items = [{"name": n, "included": not any(t in n.casefold() for t in terms)}
+                 for n in boards_cache["names"]]
+        return JSONResponse({"boards": items})
+
+    @app.post("/admin/boards")
+    def admin_boards(excluded: list[str] = Form([]), _=Depends(guard)):
+        # Persist the unchecked boards as exclusions, then sync. The picker posts
+        # exact board names; CardboardSource matches them as substrings.
+        store.save(excluded_boards=[e for e in excluded if e.strip()])
         runner.trigger()
         return RedirectResponse("/", status_code=303)
 
