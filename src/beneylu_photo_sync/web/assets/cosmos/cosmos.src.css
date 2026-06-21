@@ -43,3 +43,30 @@ html.dyslexic body {
   letter-spacing: 0.02em;
   word-spacing: 0.06em;
 }
+
+/* Lightbox chrome — defined here (not Tailwind utilities) so the JS-built
+   controls don't depend on class scanning. A solid translucent backing with a
+   subtle border keeps the arrows / close / download readable over any photo. */
+.lb-ctrl {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(6px);
+  transition: background 0.15s ease, transform 0.1s ease;
+  cursor: pointer;
+}
+.lb-ctrl:hover { background: rgba(0, 0, 0, 0.82); }
+.lb-ctrl svg { width: 1.6rem; height: 1.6rem; }
+.lb-nav { width: 3rem; height: 3rem; top: 50%; transform: translateY(-50%); }
+.lb-nav:active { transform: translateY(-50%) scale(0.92); }
+.lb-corner { width: 2.5rem; height: 2.5rem; top: 1rem; }
+.lb-corner:active { transform: scale(0.92); }
+.lb-prev { left: 1rem; }
+.lb-next { right: 1rem; }
+.lb-dl { left: 1rem; }
+.lb-close { right: 1rem; }

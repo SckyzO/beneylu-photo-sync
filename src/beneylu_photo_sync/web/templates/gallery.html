@@ -128,7 +128,10 @@
   {% for month in board.months %}
   <div class="js-month" data-month="{{ month.month }}">
     <h3 class="sticky top-[63px] z-30 mb-3 mt-5 flex">
-      <span class="rounded-xl border border-gray-200 bg-gray-100/95 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-500 shadow-sm backdrop-blur dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-300">{{ month.month }}</span>
+      <span class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-white shadow-md shadow-brand-500/25">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        {{ month.month }}
+      </span>
     </h3>
     {% for section in month.sections %}
     <div class="js-section mb-5 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"

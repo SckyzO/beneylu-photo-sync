@@ -82,14 +82,19 @@
     const photos = Array.prototype.slice.call(document.querySelectorAll("a.js-photo"));
     if (!photos.length) return;
 
-    function makeBtn(lb, label, cls, text) {
+    function makeBtn(lb, label, cls, svg) {
       const b = document.createElement("button");
       b.setAttribute("data-lb", lb);
       b.setAttribute("aria-label", label);
       b.className = cls;
-      b.textContent = text;
+      b.innerHTML = svg;  // static icon markup, no untrusted data
       return b;
     }
+    const SVG = {
+      prev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+      next: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>',
+      close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    };
 
     const overlay = document.createElement("div");
     overlay.id = "lightbox";
@@ -110,13 +115,13 @@
     download.id = "lb-download";
     download.setAttribute("aria-label", "Télécharger la photo");
     download.setAttribute("title", "Télécharger la photo");
-    download.className = "absolute left-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-xl text-white/80 hover:text-white";
-    download.innerHTML = '<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>';
+    download.className = "lb-ctrl lb-corner lb-dl";
+    download.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>';
 
-    overlay.appendChild(makeBtn("prev", "Précédent", "absolute left-4 top-1/2 -translate-y-1/2 px-4 py-2 text-3xl text-white/80 hover:text-white", "‹"));
+    overlay.appendChild(makeBtn("prev", "Précédent", "lb-ctrl lb-nav lb-prev", SVG.prev));
     overlay.appendChild(img);
-    overlay.appendChild(makeBtn("next", "Suivant", "absolute right-4 top-1/2 -translate-y-1/2 px-4 py-2 text-3xl text-white/80 hover:text-white", "›"));
-    overlay.appendChild(makeBtn("close", "Fermer", "absolute right-4 top-4 px-3 py-1 text-2xl text-white/80 hover:text-white", "✕"));
+    overlay.appendChild(makeBtn("next", "Suivant", "lb-ctrl lb-nav lb-next", SVG.next));
+    overlay.appendChild(makeBtn("close", "Fermer", "lb-ctrl lb-corner lb-close", SVG.close));
     overlay.appendChild(download);
     overlay.appendChild(counter);
     overlay.appendChild(caption);
@@ -161,7 +166,8 @@
       });
     });
     overlay.addEventListener("click", function (e) {
-      const act = e.target.getAttribute && e.target.getAttribute("data-lb");
+      const hit = e.target.closest ? e.target.closest("[data-lb]") : null;
+      const act = hit && hit.getAttribute("data-lb");
       if (act === "next") show(index + 1);
       else if (act === "prev") show(index - 1);
       else if (act === "close" || e.target === overlay) close();
