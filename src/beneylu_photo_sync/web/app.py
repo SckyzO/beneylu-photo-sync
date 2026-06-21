@@ -182,9 +182,9 @@ def create_app(store: SettingsStore | None = None,
     @app.post("/admin/wipe")
     def admin_wipe(confirm: str = Form(""), _=Depends(guard)):
         # Typed confirmation gate: nothing happens unless the exact word is
-        # submitted, so a stray click can't erase the library.
+        # submitted, so a stray click (or a crafted POST) can't erase the library.
         if confirm.strip() != WIPE_TOKEN:
-            return RedirectResponse("/config?danger=wipe", status_code=303)
+            return RedirectResponse("/", status_code=303)
         _wipe_library(store.effective())
         return RedirectResponse("/", status_code=303)
 
@@ -194,7 +194,7 @@ def create_app(store: SettingsStore | None = None,
         # state with files still on disk would dedup-suffix every photo. Then
         # kick off a fresh sync.
         if confirm.strip() != RESYNC_TOKEN:
-            return RedirectResponse("/config?danger=resync", status_code=303)
+            return RedirectResponse("/", status_code=303)
         _wipe_library(store.effective())
         runner.trigger()
         return RedirectResponse("/", status_code=303)
@@ -241,8 +241,7 @@ def create_app(store: SettingsStore | None = None,
             request=request, name="config.html",
             context={"login": cfg.login or "", "has_password": cfg.has_password,
                      "sync_interval_hours": cfg.sync_interval_hours,
-                     "excluded_boards": ", ".join(cfg.excluded_boards),
-                     "danger": request.query_params.get("danger")})
+                     "excluded_boards": ", ".join(cfg.excluded_boards)})
 
     @app.post("/config")
     def config_post(login: str = Form(""), password: str = Form(""),

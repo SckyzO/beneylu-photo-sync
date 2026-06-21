@@ -346,22 +346,3 @@
     b.addEventListener("click", open);
   });
 })();
-
-// Danger-zone forms: keep the destructive button disabled until the exact
-// confirmation word is typed, and ask once more on submit. The server enforces
-// the same typed gate regardless; this is just a guard rail.
-(function () {
-  document.querySelectorAll("form.js-danger").forEach(function (form) {
-    const want = form.getAttribute("data-confirm");
-    const input = form.querySelector('input[name="confirm"]');
-    const btn = form.querySelector('button[type="submit"]');
-    if (!want || !input || !btn) return;
-    const sync = () => { btn.disabled = input.value.trim() !== want; };
-    sync();
-    input.addEventListener("input", sync);
-    form.addEventListener("submit", function (e) {
-      if (input.value.trim() !== want || !confirm("Action irréversible. Continuer ?"))
-        e.preventDefault();
-    });
-  });
-})();

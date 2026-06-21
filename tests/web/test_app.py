@@ -321,7 +321,7 @@ def test_admin_wipe_requires_typed_confirmation(env):
     client, _, _ = _client(env)
     r = client.post("/admin/wipe", data={"confirm": "nope"}, follow_redirects=False)
     assert r.status_code == 303
-    assert r.headers["location"] == "/config?danger=wipe"
+    assert r.headers["location"] == "/"
     assert (env / "PS" / "2026-06" / "Sortie" / "a.jpg").exists()  # nothing erased
 
 
