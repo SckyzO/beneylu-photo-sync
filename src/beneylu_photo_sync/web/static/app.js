@@ -174,9 +174,15 @@
     });
   })();
 
-  // Sync status polling (unchanged behavior).
+  // Sync status polling. While a sync runs we show a spinner and live counts;
+  // when it finishes we reload the page once so the freshly downloaded photos
+  // actually appear (the gallery is server-rendered, so without a reload a first
+  // sync would leave the page empty).
   const el = document.getElementById("status");
   if (!el) return;
+  const spinner = document.getElementById("status-spinner");
+  let wasRunning = el.dataset.state === "running";
+  function setSpinner(on) { if (spinner) spinner.classList.toggle("hidden", !on); }
   async function poll() {
     try {
       const r = await fetch("/api/status");
@@ -192,12 +198,55 @@
       else if (s.state === "idle" && s.last_run_at) label += ` — ${counts()}`;
       el.textContent = label;
       el.dataset.state = s.state;
-      if (s.state === "running") return setTimeout(poll, 1000);
+      setSpinner(s.state === "running");
+      if (s.state === "running") { wasRunning = true; return setTimeout(poll, 1000); }
+      // Finished: reveal the new photos. Don't reload on error so the message stays.
+      if (wasRunning && s.state === "idle") { wasRunning = false; location.reload(); }
     } catch (e) { /* keep last shown state */ }
   }
+  setSpinner(el.dataset.state === "running");
   if (el.dataset.state === "running") poll();
   const form = document.querySelector('form[action="/sync"]');
   if (form) form.addEventListener("submit", () => setTimeout(poll, 500));
+})();
+
+// Sync split-button dropdown + confirmation modals for the destructive actions.
+// The menu surfaces full-resync / wipe next to the sync button; each opens a
+// modal whose form carries the typed token the server still requires, so a
+// single Confirmer click is enough without weakening the server-side gate.
+(function () {
+  const menuBtn = document.getElementById("sync-menu-btn");
+  const menu = document.getElementById("sync-menu");
+  if (menuBtn && menu) {
+    const closeMenu = () => { menu.classList.add("hidden"); menuBtn.setAttribute("aria-expanded", "false"); };
+    menuBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const open = menu.classList.toggle("hidden");
+      menuBtn.setAttribute("aria-expanded", String(!open));
+    });
+    document.addEventListener("click", function (e) {
+      if (!menu.classList.contains("hidden") && !menu.contains(e.target)) closeMenu();
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeMenu(); });
+  }
+
+  function showModal(m) { m.classList.remove("hidden"); m.classList.add("flex"); }
+  function hideModal(m) { m.classList.add("hidden"); m.classList.remove("flex"); }
+  document.querySelectorAll("[data-open-modal]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (menu) menu.classList.add("hidden");
+      const m = document.getElementById(btn.getAttribute("data-open-modal"));
+      if (m) showModal(m);
+    });
+  });
+  document.querySelectorAll(".js-modal").forEach(function (m) {
+    m.addEventListener("click", function (e) {
+      if (e.target === m || (e.target.getAttribute && e.target.hasAttribute("data-close-modal"))) hideModal(m);
+    });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") document.querySelectorAll(".js-modal").forEach(hideModal);
+  });
 })();
 
 // Danger-zone forms: keep the destructive button disabled until the exact

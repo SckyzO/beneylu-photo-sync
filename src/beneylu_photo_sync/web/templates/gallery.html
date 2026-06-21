@@ -1,23 +1,83 @@
 {% extends "base.html" %}
 {% block content %}
 <span class="hidden bg-black/90 z-[100] max-h-[90vh] max-w-[90vw] object-contain absolute bottom-4 top-4 left-1/2 -translate-x-1/2 rounded-xl bg-black/50 px-3 py-1 text-sm text-white/90 text-white/70"></span>
-<section class="mb-6 flex flex-wrap items-center gap-3">
-  <form method="post" action="/sync">
-    <button type="submit"
-      class="rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
-      {% if not configured or status.state == "running" %}disabled{% endif %}>
-      Synchroniser maintenant
-    </button>
-  </form>
-  {% if boards %}
-  <a href="/download"
-     class="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
-    ⬇ Tout télécharger
-  </a>
-  {% endif %}
-  <span id="status" data-state="{{ status.state }}"
-        class="text-sm text-gray-500 dark:text-gray-400">{{ status.state }}</span>
+<section class="mb-6 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-white/[0.03]">
+  <div class="flex flex-wrap items-center gap-3">
+    {% set sync_disabled = not configured or status.state == "running" %}
+    <div class="relative flex" id="sync-group">
+      <div class="flex overflow-hidden rounded-xl">
+        <form method="post" action="/sync" class="flex">
+          <button type="submit" id="sync-btn"
+            class="bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+            {% if sync_disabled %}disabled{% endif %}>
+            Synchroniser maintenant
+          </button>
+        </form>
+        <button type="button" id="sync-menu-btn" aria-label="Autres options de synchronisation"
+          aria-haspopup="true" aria-expanded="false"
+          class="border-l border-white/25 bg-brand-500 px-2.5 py-2.5 text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+          {% if sync_disabled %}disabled{% endif %}>
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+      <div id="sync-menu" role="menu"
+        class="absolute left-0 top-full z-40 mt-1 hidden w-64 rounded-xl border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+        <button type="button" data-open-modal="modal-resync" role="menuitem"
+          class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/5">
+          <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v5h-5"/></svg>
+          Resynchronisation complète
+        </button>
+        <button type="button" data-open-modal="modal-wipe" role="menuitem"
+          class="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-500/10">
+          <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14"/></svg>
+          Tout supprimer
+        </button>
+      </div>
+    </div>
+    {% if boards %}
+    <a href="/download"
+       class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg>
+      Tout télécharger
+    </a>
+    {% endif %}
+    <div class="ml-auto flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+      <svg id="status-spinner" class="hidden h-4 w-4 animate-spin text-brand-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+      <span id="status" data-state="{{ status.state }}">{{ status.state }}</span>
+    </div>
+  </div>
 </section>
+
+{% set modals = [
+  ("modal-resync", "Resynchronisation complète", "/admin/resync", "RESYNC",
+   "Supprime toutes les photos et l'état, puis re-télécharge tout depuis l'ENT. L'opération peut être longue.", false),
+  ("modal-wipe", "Tout supprimer", "/admin/wipe", "SUPPRIMER",
+   "Supprime définitivement toutes les photos et l'état. Cette action est irréversible.", true),
+] %}
+{% for mid, title, action, token, body, danger in modals %}
+<div id="{{ mid }}" class="js-modal fixed inset-0 z-[110] hidden items-center justify-center bg-black/60 p-4">
+  <div class="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-900">
+    <h3 class="mb-2 text-lg font-semibold {% if danger %}text-red-700 dark:text-red-300{% else %}text-gray-900 dark:text-white{% endif %}">{{ title }}</h3>
+    <p class="mb-5 text-sm text-gray-600 dark:text-gray-300">{{ body }}</p>
+    <div class="flex justify-end gap-2">
+      <button type="button" data-close-modal
+        class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-white/5">Annuler</button>
+      <form method="post" action="{{ action }}">
+        <input type="hidden" name="confirm" value="{{ token }}">
+        <button type="submit"
+          class="rounded-xl px-4 py-2 text-sm font-medium text-white {% if danger %}bg-red-600 hover:bg-red-700{% else %}bg-brand-500 hover:bg-brand-600{% endif %}">Confirmer</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
 {% if not configured %}
 <p class="mb-4 rounded-xl bg-amber-100 px-4 py-3 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
   Identifiants ENT manquants — renseigne-les dans <a class="underline" href="/config">Configuration</a>.
@@ -46,7 +106,7 @@
           </svg>
         </a>
       </div>
-      <div class="grid gap-3 border-t border-gray-100 p-5 [grid-template-columns:repeat(auto-fill,minmax(120px,160px))] dark:border-gray-800" data-lightbox-group>
+      <div class="grid justify-center gap-3 border-t border-gray-100 p-5 [grid-template-columns:repeat(auto-fit,minmax(120px,160px))] dark:border-gray-800" data-lightbox-group>
         {% for photo in section.photos %}
         <a href="/photo/{{ photo.key }}" class="js-photo" data-full="/photo/{{ photo.key }}" data-name="{{ photo.name }}">
           <img loading="lazy" src="/thumb/{{ photo.key }}" alt="{{ photo.name }}"

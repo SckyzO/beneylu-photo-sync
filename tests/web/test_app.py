@@ -297,13 +297,23 @@ def test_download_thumbnail_dir_is_404(env):
     assert client.get(f"/download/{THUMB_DIR}").status_code == 404
 
 
-def test_config_page_has_danger_zone(env):
+def test_gallery_has_destructive_actions(env):
+    # The destructive actions live in the gallery's sync dropdown (single source),
+    # each behind a confirm modal carrying the typed token the server requires.
+    client, _, _ = _client(env)
+    r = client.get("/")
+    assert r.status_code == 200
+    assert 'id="sync-menu"' in r.text
+    assert 'action="/admin/wipe"' in r.text and 'action="/admin/resync"' in r.text
+    assert 'value="SUPPRIMER"' in r.text and 'value="RESYNC"' in r.text
+
+
+def test_config_page_has_no_danger_zone(env):
+    # Danger zone was moved out of /config to avoid two places doing the same thing.
     client, _, _ = _client(env)
     r = client.get("/config")
     assert r.status_code == 200
-    assert "Zone de danger" in r.text
-    assert 'action="/admin/wipe"' in r.text and 'action="/admin/resync"' in r.text
-    assert "SUPPRIMER" in r.text and "RESYNC" in r.text
+    assert "Zone de danger" not in r.text
 
 
 def test_admin_wipe_requires_typed_confirmation(env):
