@@ -181,30 +181,63 @@
   const el = document.getElementById("status");
   if (!el) return;
   const spinner = document.getElementById("status-spinner");
+  const titleEl = document.getElementById("status-title");
+  const detailEl = document.getElementById("status-detail");
   let wasRunning = el.dataset.state === "running";
+
   function setSpinner(on) { if (spinner) spinner.classList.toggle("hidden", !on); }
+  function fmtDate(at) {
+    if (!at) return "";
+    const d = new Date(at);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) +
+           " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+  function breakdown(s) {
+    let c = `${s.downloaded} téléchargées · ${s.skipped} ignorées`;
+    if (s.errors) c += ` · ${s.errors} erreurs`;
+    if (s.pruned) c += ` · ${s.pruned} élagués`;
+    return c;
+  }
+  // Two-line status: a short title plus a muted detail (date + summary, with the
+  // full breakdown on hover). Blank when no sync has ever run.
+  function render(s) {
+    let title = "", detail = "", tip = "";
+    if (s.state === "running") {
+      title = "Synchronisation…";
+      detail = breakdown(s);
+    } else if (s.state === "error") {
+      title = "Erreur";
+      detail = s.last_error || "";
+    } else if (s.state === "idle" && s.last_run_at) {
+      title = "Dernière synchronisation";
+      const n = s.downloaded;
+      detail = fmtDate(s.last_run_at) + " · " + (n > 0 ? `${n} photo${n > 1 ? "s" : ""}` : "à jour");
+      tip = breakdown(s);
+    }
+    titleEl.textContent = title;
+    detailEl.textContent = detail;
+    detailEl.title = tip;
+    setSpinner(s.state === "running");
+  }
+  function fromDom() {
+    return { state: el.dataset.state, last_run_at: el.dataset.at || null,
+             last_error: el.dataset.error || "",
+             downloaded: +el.dataset.dl || 0, skipped: +el.dataset.sk || 0,
+             errors: +el.dataset.er || 0, pruned: +el.dataset.pr || 0 };
+  }
   async function poll() {
     try {
       const r = await fetch("/api/status");
       const s = await r.json();
-      const counts = () => {
-        let c = `${s.downloaded} téléchargées, ${s.skipped} ignorées, ${s.errors} erreurs`;
-        if (s.pruned) c += `, ${s.pruned} élagués`;
-        return c;
-      };
-      let label = "";
-      if (s.state === "running") label = `Synchronisation… ${counts()}`;
-      else if (s.state === "error") label = "Erreur" + (s.last_error ? " — " + s.last_error : "");
-      else if (s.state === "idle" && s.last_run_at) label = `Dernière sync : ${counts()}`;
-      el.textContent = label;
       el.dataset.state = s.state;
-      setSpinner(s.state === "running");
+      render(s);
       if (s.state === "running") { wasRunning = true; return setTimeout(poll, 1000); }
       // Finished: reveal the new photos. Don't reload on error so the message stays.
       if (wasRunning && s.state === "idle") { wasRunning = false; location.reload(); }
     } catch (e) { /* keep last shown state */ }
   }
-  setSpinner(el.dataset.state === "running");
+  render(fromDom());
   if (el.dataset.state === "running") poll();
   const form = document.querySelector('form[action="/sync"]');
   if (form) form.addEventListener("submit", () => setTimeout(poll, 500));
