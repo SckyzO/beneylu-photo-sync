@@ -21,9 +21,9 @@ et les range chez toi, sans avoir à les enregistrer une par une.
 
 ```mermaid
 flowchart LR
-    A["👨‍👩‍👧 Ton compte ENT<br/>ent-ecole.fr"] -->|connexion sécurisée| B["⚙️ Beneylu Photo Sync"]
-    B -->|lit les tableaux<br/>de la classe| C["🖼️ Photos publiées<br/>par l'école"]
-    C -->|télécharge<br/>les nouveautés| D["📁 Tes photos<br/>rangées par date et section"]
+    A["🔑 Compte ENT<br/>ent-ecole.fr"] --> B["⚙️ Beneylu<br/>Photo Sync"]
+    B --> C["🖼️ Photos<br/>de la classe"]
+    C --> D["📁 Tes photos<br/>par mois & section"]
 ```
 
 L'outil se connecte avec **tes identifiants ENT**, parcourt les tableaux de la classe, et

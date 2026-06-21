@@ -28,7 +28,9 @@ Pièges : auth par **cookie** (pas header Bearer) ; `signature`/`timestamp` à r
 `core/` runtime-agnostique : `client.py` (BeneyluClient), `sources/` (interface `Source`,
 `cardboard.py` en v1), `storage/` (interface `Storage`, `filesystem.py` défaut),
 `state.py` (SQLite, idempotence par `media_id`), `naming.py`, `sync.py`, `config.py`.
-Par-dessus : `web/` (FastAPI, runtime Docker), `runtimes/` (docker, github-actions), `cli.py`.
+Par-dessus : `web/` (UI FastAPI : galerie, recherche, visionneuse, board picker, ZIP, scheduler),
+`cli.py`, et `runtimes/docker/` (images CLI + web). Le runtime GitHub Actions et le storage
+Google Drive sont prévus mais **pas encore implémentés**.
 
 **Extensibilité par interface, pas par liste hardcodée** : une nouvelle source/un nouveau
 backend storage s'ajoute sans toucher au cœur.
@@ -67,8 +69,10 @@ beneylu-photo-sync sync            # synchronise (incrémental)
 
 ## Phases
 
-- **Phase 1** : cardboard + filesystem + state + CLI + Docker, sync incrémental testé.
-- **Phase 2** : UI web galerie, runtime Actions + Google Drive, sources famille/chat/newspaper.
+- **Phase 1 (faite)** : cardboard + filesystem + state + CLI + Docker, sync incrémental testé.
+- **Phase 2 (en cours)** : ✅ UI web galerie (galerie, recherche, visionneuse, board picker, ZIP,
+  actions destructives, accessibilité). **À venir** : runtime GitHub Actions, storage Google Drive,
+  sources famille/chat/journal.
 
 ## Hors-scope
 
