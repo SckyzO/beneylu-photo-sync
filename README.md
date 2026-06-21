@@ -40,12 +40,17 @@ docker compose -f runtimes/docker/docker-compose.yml up web
 Ouvre <http://127.0.0.1:8000>, renseigne tes identifiants ENT dans **Configuration**,
 clique **Synchroniser maintenant**, puis parcours la galerie. Les photos sont groupées
 par tableau puis par mois ; la barre de recherche filtre en direct (accents ignorés), et
-un clic ouvre la visionneuse plein écran avec navigation au clavier et bouton de
-téléchargement.
+un clic ouvre la visionneuse plein écran avec navigation au clavier et téléchargement. La
+date de la dernière synchronisation s'affiche dans le bandeau.
+
+Le menu à côté du bouton **Synchroniser** permet de **choisir les tableaux** à récupérer
+(pratique pour ignorer ceux sans photos), de forcer une **resynchronisation complète**, ou
+de **tout supprimer**.
 
 Tu peux récupérer **tout en une archive ZIP**, ou seulement une section. Pour une sync
 automatique, règle la fréquence en heures (`ENT_SYNC_INTERVAL_HOURS`). Elle s'applique au
-redémarrage du service.
+redémarrage du service. Une **police adaptée à la dyslexie** (OpenDyslexic) est aussi
+proposée dans la page Configuration.
 
 ### En ligne de commande
 
@@ -90,10 +95,6 @@ Par défaut l'interface n'écoute que sur `127.0.0.1` : seule ta machine y accè
 l'ouvrir au réseau local, mets `ENT_WEB_HOST=0.0.0.0`, et définis alors un
 `ENT_WEB_PASSWORD`. Sinon n'importe qui sur le réseau verra tes photos (un avertissement
 est émis au démarrage dans ce cas).
-
-La page **Configuration** offre aussi une **zone de danger** : tout supprimer, ou forcer
-une resynchronisation complète. Chaque action demande de retaper un mot de confirmation
-avant de s'exécuter.
 
 ## Sous le capot
 
