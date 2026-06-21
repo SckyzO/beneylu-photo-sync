@@ -346,3 +346,15 @@
     b.addEventListener("click", open);
   });
 })();
+
+// Dyslexia-friendly font toggle (config page). A client-side preference like the
+// theme: flips .dyslexic on <html> and persists it; base.html applies it on load.
+(function () {
+  const cb = document.getElementById("dyslexic-toggle");
+  if (!cb) return;
+  try { cb.checked = localStorage.dyslexic === "1"; } catch (e) {}
+  cb.addEventListener("change", function () {
+    document.documentElement.classList.toggle("dyslexic", cb.checked);
+    try { localStorage.dyslexic = cb.checked ? "1" : "0"; } catch (e) {}
+  });
+})();

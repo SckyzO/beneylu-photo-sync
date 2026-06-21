@@ -23,3 +23,23 @@
   --color-brand-700: #2a31d8;
   --color-brand-800: #252dae;
 }
+
+/* OpenDyslexic (SIL OFL), bundled locally for the optional reading-accessibility
+   mode. Enabled by toggling .dyslexic on <html> (persisted in localStorage). */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/static/fonts/opendyslexic-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/static/fonts/opendyslexic-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+html.dyslexic body {
+  font-family: "OpenDyslexic", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  word-spacing: 0.06em;
+}

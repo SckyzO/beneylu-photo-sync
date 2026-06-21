@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Beneylu Photo Sync{% endblock %}</title>
   <script>
-    // Apply the persisted theme before first paint (no flash). Dark is default.
+    // Apply the persisted theme + dyslexia font before first paint (no flash).
+    // Dark is the default theme; the dyslexia-friendly font is off by default.
     (function () {
       try {
         if (localStorage.theme === "light")
           document.documentElement.classList.remove("dark");
         else document.documentElement.classList.add("dark");
+        if (localStorage.dyslexic === "1")
+          document.documentElement.classList.add("dyslexic");
       } catch (e) {}
     })();
   </script>

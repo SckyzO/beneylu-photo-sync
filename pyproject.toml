@@ -25,7 +25,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/beneylu_photo_sync"]
-artifacts = ["src/beneylu_photo_sync/web/templates/*", "src/beneylu_photo_sync/web/static/*"]
+artifacts = ["src/beneylu_photo_sync/web/templates/*", "src/beneylu_photo_sync/web/static/**/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
