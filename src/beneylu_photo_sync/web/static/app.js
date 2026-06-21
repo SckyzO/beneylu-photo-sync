@@ -192,10 +192,10 @@
         if (s.pruned) c += `, ${s.pruned} élagués`;
         return c;
       };
-      let label = s.state;
-      if (s.state === "error" && s.last_error) label += " — " + s.last_error;
-      else if (s.state === "running") label = `Synchronisation… ${counts()}`;
-      else if (s.state === "idle" && s.last_run_at) label += ` — ${counts()}`;
+      let label = "";
+      if (s.state === "running") label = `Synchronisation… ${counts()}`;
+      else if (s.state === "error") label = "Erreur" + (s.last_error ? " — " + s.last_error : "");
+      else if (s.state === "idle" && s.last_run_at) label = `Dernière sync : ${counts()}`;
       el.textContent = label;
       el.dataset.state = s.state;
       setSpinner(s.state === "running");

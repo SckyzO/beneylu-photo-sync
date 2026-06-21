@@ -58,7 +58,12 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
-      <span id="status" data-state="{{ status.state }}">{{ status.state }}</span>
+      <span id="status" data-state="{{ status.state }}">
+        {%- if status.state == "running" -%}Synchronisation…
+        {%- elif status.state == "error" -%}Erreur{% if status.last_error %} — {{ status.last_error }}{% endif %}
+        {%- elif status.last_run_at -%}Dernière sync : {{ status.downloaded }} téléchargées, {{ status.skipped }} ignorées, {{ status.errors }} erreurs{% if status.pruned %}, {{ status.pruned }} élagués{% endif %}
+        {%- endif -%}
+      </span>
     </div>
   </div>
 </section>
