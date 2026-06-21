@@ -4,8 +4,6 @@ Exporteur automatique des photos publiées par l'école sur **Beneylu School**
 (instance `ent-ecole.fr`). Gros sync initial + sync incrémentale. Self-hostable,
 réutilisable par d'autres familles. Stack **Python**.
 
-> Design complet : `docs/superpowers/specs/2026-06-15-beneylu-photo-exporter-design.md`
-
 ## Pipeline API Beneylu (critique, non-trivial)
 
 `ent-ecole.fr` = SPA React + **API REST JSON privée**, auth par **cookie `BEARER`**
